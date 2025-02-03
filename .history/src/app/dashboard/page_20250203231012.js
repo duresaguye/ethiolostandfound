@@ -11,7 +11,7 @@ export default async function dashboard() {
   
   });
   if(!session) {
-   redirect('/');
+    window.location.href = '/login';
     return;
   }
   const user = session.user;
