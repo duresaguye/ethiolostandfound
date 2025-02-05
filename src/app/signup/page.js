@@ -1,77 +1,134 @@
-"use client"
+"use client";
+import React, { useState, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { authClient } from "../../../lib/auth-client"; 
-import { useState } from 'react';
 
-export default function SignUp() {
+const Signup = () => {
+  const router = useRouter();
+
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const signUp = async () => {
-    
-    const { data, error } = await authClient.signUp.email({ 
-        email, 
-        password, 
-        name, 
-     
-     }, { 
-        onRequest: (ctx) => { 
-         // Show loading indicator
-        }, 
-        onSuccess: (ctx) => { 
-            // Redirect to dashboard
-            window.location.href = '/dashboard';
-        }, 
-        onError: (ctx) => { 
-          alert(ctx.error.message); 
-        }, 
-      }); 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      const { data, error } = await authClient.signUp.email({
+        email,
+        password,
+        name: username,
+      }, {
+        onRequest: (ctx) => {
+          // Show loading indicator
+        },
+        onSuccess: (ctx) => {
+          // Redirect to dashboard
+          router.push('/profile');
+        },
+        onError: (ctx) => {
+          setError(ctx.error.message);
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
+    }
+  };
+
+  const handleLoginNavigate = () => {
+    router.push('/login');
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] bg-gray-100">
-      <h1 className="text-4xl font-semibold text-gray-800">Sign Up</h1>
-      
-      <form className="flex flex-col justify-center items-center text-gray-800 space-y-4 bg-white p-8 shadow-lg rounded-lg w-full max-w-sm" onSubmit={(e) => { e.preventDefault(); signUp(); }}>
-        <input
-          type="text"
-          placeholder="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-       
-        <button
-          type="submit"
-          className="w-full p-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition-all"
-        >
-          Sign Up
-        </button>
-      </form>
-
-      <p className="text-center text-sm text-gray-600 mt-4">
-        Already have an account? <a href="/login" className="text-blue-500 hover:underline">Login</a>
-      </p>
+    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="container mx-auto p-4 max-w-md">
+        <h1 className="text-4xl font-bold mb-6 text-center">Sign Up</h1>
+        <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg shadow-lg">
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Enter your Full Name"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div className="relative">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Password</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Enter your password"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 pr-3 mt-4 flex items-center text-sm leading-5"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+          <div>
+            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
+            <input
+              type="password"
+              id="confirm-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Confirm your password"
+              required
+            />
+          </div>
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          <button
+            type="submit"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 w-full transition duration-300"
+          >
+            Sign Up
+          </button>
+          <p className="mt-4 text-gray-300 text-center">Already have an account?</p>
+          <button
+            type="button"
+            onClick={handleLoginNavigate}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 w-full transition duration-300 mt-2"
+          >
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
-}
+};
 
-// Helper function to convert image to base64
-function convertImageToBase64(file) {
-  // Implementation of the function
-  return '';
-}
+export default Signup;
