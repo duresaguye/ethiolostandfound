@@ -14,11 +14,11 @@ const PostItem = () => {
     image: null,
     status: 'found',
   });
- 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
-  // This useEffect hook handles redirection
   useEffect(() => {
     if (!isPending && !session) {
       router.push('/login');
@@ -32,6 +32,10 @@ const PostItem = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    if (file && file.size > 5 * 1024 * 1024) { // 5MB limit
+      alert('File size too large (max 5MB)');
+      return;
+    }
     setItem({ ...item, image: file });
   };
 
@@ -46,6 +50,7 @@ const PostItem = () => {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const formData = new FormData();
       formData.append('itemName', item.itemName);
@@ -54,7 +59,7 @@ const PostItem = () => {
       formData.append('contact', item.contact);
       formData.append('date', item.date);
       formData.append('status', item.status);
-      formData.append('userId', session.user.id);
+      
       if (item.image) {
         formData.append('image', item.image);
       }
@@ -64,6 +69,8 @@ const PostItem = () => {
         body: formData,
       });
 
+      const result = await response.json();
+      
       if (response.ok) {
         alert('Item submitted successfully');
         setItem({
@@ -77,17 +84,20 @@ const PostItem = () => {
         });
         router.push('/profile');
       } else {
-        alert('Failed to submit item');
+        alert(result.error || 'Failed to submit item');
       }
     } catch (error) {
       console.error('Failed to submit item:', error);
       alert('Failed to submit item');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   if (isPending || !session) {
     return <div><Loader /></div>;
   }
+
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
@@ -168,9 +178,12 @@ const PostItem = () => {
           <div className="flex justify-center">
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 rounded-md text-white font-semibold hover:bg-indigo-700"
+              disabled={isSubmitting}
+              className={`px-4 py-2 bg-indigo-600 rounded-md text-white font-semibold ${
+                isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-indigo-700'
+              }`}
             >
-              Submit Item
+              {isSubmitting ? 'Submitting...' : 'Submit Item'}
             </button>
           </div>
         </form>

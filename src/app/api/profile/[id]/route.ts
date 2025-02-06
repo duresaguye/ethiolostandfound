@@ -1,102 +1,88 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { authClient } from "../../../../../lib/auth-client";  
+import { headers } from "next/headers"; 
+import { auth } from "../../../../../lib/auth";
 
 const prisma = new PrismaClient();
 
-// Define the type of session returned by the authClient.useSession() function
-interface Session {
-  user: {
-    id: string;
-    email: string;
-    name: string | null;
-  };
-}
-
-// 📌 GET: Fetch all lost items by the logged-in user
+//
+// ─── GET: Retrieve Only the User’s Uploaded Items ─────────────────────────────
+//
 export async function GET(req: Request) {
-  const { data: session} = authClient.useSession() as { data: Session | null };
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Retrieve just the items that the logged-in user uploaded.
+    const items = await prisma.lostItem.findMany({
+      where: { userId: session.user.id },
+      // Adjust the selected fields to only include what was uploaded.
+      select: {
+        id: true,
+        itemName: true,
+        description: true,
+        location: true,
+        contact: true,
+        image: true,
+        date: true,
+        status: true,
+      },
+    });
+
+    return NextResponse.json({ items });
+  } catch (error) {
+    console.error("Failed to retrieve items:", error);
+    return NextResponse.json(
+      { error: "Failed to retrieve items" },
+      { status: 500 }
+    );
   }
-
-  const items = await prisma.lostItem.findMany({
-    where: {
-      userId: session.user.id,
-    },
-  });
-
-  return NextResponse.json({ items });
 }
 
-// 📌 POST: Add a new lost item (Authenticated)
-export async function POST(req: Request) {
-  const { data: session} = authClient.useSession() as { data: Session | null };
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { itemName, description, location, contact, date, image, status } = await req.json();
-
-  const newItem = await prisma.lostItem.create({
-    data: {
-      itemName,
-      description,
-      location,
-      contact,
-      date: new Date(date),
-      image,
-      status,
-      userId: session.user.id, // Link the item to the logged-in user
-    },
-  });
-
-  return NextResponse.json({ message: "Item added successfully", newItem });
-}
-
-// 📌 PATCH: Update a lost item by ID (Authenticated & Own Item)
-export async function PATCH(req: Request) {
-  const { data: session} = authClient.useSession() as { data: Session | null };
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id, ...updates } = await req.json();
-
-  // Ensure the item belongs to the logged-in user
-  const item = await prisma.lostItem.findUnique({ where: { id } });
-  if (!item || item.userId !== session.user.id) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  const updatedItem = await prisma.lostItem.update({
-    where: { id },
-    data: updates,
-  });
-
-  return NextResponse.json({ message: "Item updated successfully", updatedItem });
-}
-
-// 📌 DELETE: Remove a lost item by ID (Authenticated & Own Item)
+//
+// ─── DELETE: Remove an Uploaded Item ──────────────────────────────────────────
+//
 export async function DELETE(req: Request) {
-  const { data: session} = authClient.useSession() as { data: Session | null };
+  try {
+    console.log("DELETE request received");
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const sessionHeaders = headers();
+    console.log("Headers:", sessionHeaders);
+
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      console.log("Unauthorized request");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const formData = await req.formData();
+    const itemId = formData.get("id") as string;
+    if (!itemId) {
+      console.log("Missing item ID");
+      return NextResponse.json({ error: "Item ID is required" }, { status: 400 });
+    }
+
+    const item = await prisma.lostItem.findUnique({ where: { id: itemId } });
+
+    if (!item || item.userId !== session.user.id) {
+      console.log("Forbidden: Item not found or user mismatch");
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    await prisma.lostItem.delete({ where: { id: itemId } });
+
+    console.log("Item deleted successfully");
+    return NextResponse.json({ message: "Item deleted successfully" }, { status: 200 });
+
+  } catch (error) {
+    console.error("Failed to delete item:", error);
+    return NextResponse.json({ error: "Failed to delete item" }, { status: 500 });
   }
-
-  const { id } = await req.json();
-
-  // Ensure the item belongs to the logged-in user
-  const item = await prisma.lostItem.findUnique({ where: { id } });
-  if (!item || item.userId !== session.user.id) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  await prisma.lostItem.delete({ where: { id } });
-
-  return NextResponse.json({ message: "Item deleted successfully" });
 }

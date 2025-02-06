@@ -66,17 +66,19 @@ const Navbar = () => {
         </div>
 
         {/* Mobile menu button */}
-        <button 
-          className="lg:hidden flex items-center relative z-50" 
-         
-          aria-label="Toggle mobile menu"
-        >
-          <div className={`w-6 h-6 flex flex-col justify-center items-center relative transition-transform duration-300 ${isMobileMenuOpen ? 'open' : ''}`}>
-            <div className={`w-6 h-0.5 bg-white transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`}></div>
-            <div className={`w-6 h-0.5 bg-white mt-1 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></div>
-            <div className={`w-6 h-0.5 bg-white mt-1 transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`}></div>
-          </div>
-        </button>
+     
+<button 
+  className="lg:hidden flex items-center relative z-50" 
+  onClick={toggleMobileMenu} // Add this line
+  aria-label="Toggle mobile menu"
+>
+  <div className={`w-6 h-6 flex flex-col justify-center items-center relative transition-transform duration-300 ${isMobileMenuOpen ? 'open' : ''}`}>
+    <div className={`w-6 h-0.5 bg-white transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`}></div>
+    <div className={`w-6 h-0.5 bg-white mt-1 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></div>
+    <div className={`w-6 h-0.5 bg-white mt-1 transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`}></div>
+  </div>
+</button>
+
       </nav>
 
       {/* Mobile Menu Overlay */}

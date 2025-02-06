@@ -3,6 +3,10 @@ import React, { useState } from "react";
 import { useRouter } from 'next/navigation';
 import { authClient } from "../../../lib/auth-client"; 
 
+import { FcGoogle } from "react-icons/fc";
+
+
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,10 +47,43 @@ export default function LoginPage() {
     signIn();
   };
 
+  const signInWithGithub = async () => {
+    await authClient.signIn.social({
+      provider: "facebook",
+      callbackURL: "/profile",
+    });
+  };
+  const handleLoginNavigate = () => {
+    router.push('/signup');
+  };
+  const signInWithGoogle = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/profile",
+    });
+  };
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
       <div className="container mx-auto p-4 max-w-md">
         <h1 className="text-4xl font-bold mb-6 text-center">Login</h1>
+        
+         
+
+        <button
+  onClick={signInWithGoogle}
+  className="flex items-center justify-center w-full mt-4 bg-white text-gray-900 font-semibold py-2 rounded-md transition duration-200 hover:opacity-90"
+>
+  <FcGoogle className="text-2xl mr-2" />
+  Sign in with Google
+</button>
+
+<div className="flex items-center my-4">
+  <hr className="flex-grow border-gray-700" />
+  <span className="mx-3 text-gray-400 font-semibold">OR</span>
+  <hr className="flex-grow border-gray-700" />
+</div>
+
+        
         <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg shadow-lg">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
@@ -77,6 +114,14 @@ export default function LoginPage() {
             className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 w-full transition duration-300"
           >
             Login
+          </button>
+          <p className="mt-4 text-gray-300 text-center">Don't you  have an account?</p>
+          <button
+            type="button"
+            onClick={handleLoginNavigate}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 w-full transition duration-300 mt-2"
+          >
+            Sign Up
           </button>
         </form>
       </div>

@@ -6,9 +6,6 @@ import Loader from '../../components/Loader';
 
 const Profile = () => {
   const [items, setItems] = useState([]);
-  const [user, setUser] = useState(null);
-  const [profilePhoto, setProfilePhoto] = useState(null);
-  const [activeTab, setActiveTab] = useState('posts');
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
@@ -19,88 +16,89 @@ const Profile = () => {
   }, [session, isPending, router]);
 
   useEffect(() => {
-    const fetchProfileData = async () => {
+    const fetchItems = async () => {
       if (session) {
         try {
           const response = await fetch(`/api/profile/${session.user.id}`);
           if (response.ok) {
             const data = await response.json();
-            setUser(data.user);
             setItems(data.items);
-            setProfilePhoto(data.user.photo || null);
           } else {
-            console.error('Failed to fetch profile data');
+            console.error('Failed to fetch items');
           }
         } catch (error) {
-          console.error('Failed to fetch profile data:', error);
+          console.error('Failed to fetch items:', error);
         }
       }
     };
 
-    fetchProfileData();
+    fetchItems();
   }, [session]);
 
-  const handleDelete = (itemId) => {
-    setItems(items.filter(item => item.id !== itemId));
+  const handleDelete = async (itemId) => {
+    try {
+      const formData = new FormData();
+      formData.append("id", itemId);
+      const response = await fetch(`/api/profile/${session.user.id}`, {
+        method: 'DELETE',
+        body: formData,
+      });
+      if (response.ok) {
+        setItems(prevItems => prevItems.filter(item => item.id !== itemId));
+      } else {
+     
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
   };
 
   if (isPending || !session) {
     return <div><Loader /></div>;
   }
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'posts':
-        return (
-          <div>
-            <h2 className="text-2xl font-bold mb-4 text-center">Posted Items</h2>
-            {items.length === 0 ? (
-              <p>No items to display</p>
-            ) : (
-              <ul className="space-y-2 lg:flex flex-row">
-                {items.map(item => (
-                  <li key={item.id} className="p-4 rounded-lg shadow-md">
-                    {item.image && (
-                      <img className="rounded-t-lg w-40 h-40 object-cover" src={item.image} alt={item.title} />
-                    )}
-                    <h3 className="text-xl font-semibold">{item.title}</h3>
-                    <p>{item.description}</p>
-                    <p className="text-sm text-gray-400">Location: {item.location}</p>
-                    <p className="mb-2"><strong>Date:</strong> {new Date(item.date_posted).toLocaleDateString()}</p>
-                    <div className="flex space-x-2 mt-2">
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="bg-red-500 px-3 py-1 rounded-md text-white font-semibold hover:bg-red-600"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        );
-      case 'about':
-        return (
-          <div className="mt-2">
-            <h2 className="text-2xl font-bold mb-4">About</h2>
-            <p>{user?.bio || 'No bio available'}</p>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col lg:flex-row">
-      <main className="flex-1 ml-20 lg:ml-20 p-4 lg:mt-0">
-        <div className="rounded-lg shadow-lg">
-          {renderContent()}
+    <div className="min-h-screen bg-gray-900 text-white p-4">
+    <div className="max-w-6xl mx-auto">
+      <h2 className="text-3xl font-bold text-center mb-8">Posted Items</h2>
+      {items.length === 0 ? (
+        <p className="text-center">No items to display</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {items.map(item => (
+            <div key={item.id} className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+              {item.image && (
+                <img
+                  className="w-full h-32 object-cover"
+                  src={item.image}
+                  alt={item.itemName}
+                />
+              )}
+              <div className="p-4">
+                <h3 className="text-lg font-semibold mb-2">{item.itemName}</h3>
+                <p className="text-sm">{item.description}</p>
+                <p className="text-xs text-gray-400 mt-1">Location: {item.location}</p>
+                <p className="text-xs text-gray-400 mt-1">Contact: {item.contact}</p>
+                <p className="text-xs text-gray-400">
+                Date: {new Date(item.date).toISOString().slice(0, 10)}
+
+                </p>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="bg-red-500 text-xs px-2 py-1 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </main>
+      )}
     </div>
+  </div>
+  
   );
 };
 

@@ -4,37 +4,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaSpinner } from 'react-icons/fa';
 import { authClient } from "../../lib/auth-client";
-
-
-const useItems = () => {
-  return {
-    items: [
-      {
-        id: '1',
-        title: 'Lost Phone',
-        description: 'A black iPhone found near the campus.',
-        item_type: 'lost',
-        location: 'Campus A',
-        date: '2025-02-04',
-        image: '/images/lost-phone.jpg',
-      },
-      {
-        id: '2',
-        title: 'Found Wallet',
-        description: 'A brown wallet found near the library.',
-        item_type: 'found',
-        location: 'Campus B',
-        date: '2025-02-03',
-        image: '/images/found-wallet.jpg',
-      },
-    ],
-    loading: false,
-    error: '',
-  };
-};
+import Loader from '../components/Loader';
 
 const Home = () => {
-  const { items, loading, error } = useItems();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState(''); 
@@ -43,6 +18,26 @@ const Home = () => {
   const itemsPerPage = 6;
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchItems = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/items');
+        if (response.ok) {
+          const data = await response.json();
+          setItems(data.items);
+        } else {
+          setError('Failed to fetch items');
+        }
+      } catch (error) {
+        setError('Failed to fetch items');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItems();
+  }, []);
 
   const handleFilterChange = (status) => {
     setFilter(status);
@@ -54,11 +49,10 @@ const Home = () => {
     setCurrentPage(1); 
   };
 
-
   const filteredItems = items
     .filter((item) =>
-      (filter === 'all' || item.item_type === filter) &&
-      (item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      (filter === 'all' || item.status === filter) &&
+      (item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) || 
         item.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
       (item.location.toLowerCase().includes(locationQuery.toLowerCase())) 
     )
@@ -76,8 +70,8 @@ const Home = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <FaSpinner className="text-4xl animate-spin text-gray-500" />
+      <div >
+        <Loader />
       </div>
     );
   }
@@ -157,40 +151,42 @@ const Home = () => {
                 <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
                   <img 
                     src={item.image} 
-                    alt={item.title} 
+                    alt={item.itemName} 
                     className="object-cover w-full h-full" 
                   />
                 </div>
               )}
               <div className="p-5">
                 <h5 className="mb-2 text-2xl font-bold text-green-500">
-                  {item.title}
+                  {item.itemName}
                 </h5>
                 <Link
-      href={
-        session
-          ? `/item/${item.id}`
-          : `/login?redirect=${encodeURIComponent(`/item/${item.id}`)}`
-      }
-      className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition duration-300"
-    >
-      See More
-      <svg
-        className="w-3.5 h-3.5 ms-2"
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 14 10"
-      >
-        <path
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M1 5h12m0 0L9 1m4 4L9 9"
-        />
-      </svg>
-    </Link>
+                  href={`/item/${item.id}`}
+                  onClick={(e) => {
+                    if (!session) {
+                      e.preventDefault();
+                      router.push(`/login?redirect=${encodeURIComponent(`/item/${item.id}`)}`);
+                    }
+                  }}
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition duration-300"
+                >
+                  See More
+                  <svg
+                    className="w-3.5 h-3.5 ms-2"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 14 10"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M1 5h12m0 0L9 1m4 4L9 9"
+                    />
+                  </svg>
+                </Link>
               </div>
             </div>
           ))
