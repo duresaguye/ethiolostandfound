@@ -31,7 +31,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/signup/page.js"  ],
+, "src/app/signup/page.js", "middleware.js"  ],
   "exclude": [
     "node_modules"
   ]

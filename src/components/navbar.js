@@ -1,50 +1,23 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { auth } from "../../lib/auth"; // Adjust the path to your auth module
+import { authClient } from "../../lib/auth-client";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { data: session, isPending } = authClient.useSession();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const session = await getSession();
-        setIsAuthenticated(!!session);
-      } catch (error) {
-        console.error("Failed to fetch session:", error);
-      }
-    };
 
-    checkAuth();
-  }, []);
 
-  const getSession = async () => {
-    try {
-      const response = await fetch("/api/session", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${yourToken}`, // Replace 'yourToken' with your actual token
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch session");
-      }
-
-      const data = await response.json();
-      return data; // Or whatever response format you're using
-    } catch (error) {
-      console.error("Error during getSession:", error);
-      throw error;
-    }
+  const handleSignOut = async () => {
+    await authClient.signOut();
+  
   };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+  
 
   return (
     <>
@@ -77,15 +50,16 @@ const Navbar = () => {
         <div className="hidden lg:flex flex-grow justify-between items-center text-center text-lg ml-96">
           <div className="flex space-x-32">
             <Link href="/" className="inline-block hover:underline">Home</Link>
-            {isAuthenticated ? (
-              <>
-                <Link href="/post" className="inline-block hover:underline">Post Item</Link>
-                <Link href="/profile" className="inline-block hover:underline">Profile</Link>
-              </>
-            ) : (
+            {!session ? (
               <>
                 <Link href="/signup" className="inline-block hover:underline">Sign Up</Link>
                 <Link href="/login" className="inline-block hover:underline">Login</Link>
+              </>
+            ) : (
+              <>
+                <Link href="/post" className="inline-block hover:underline">Post Item</Link>
+                <Link href="/profile" className="inline-block hover:underline">Profile</Link>
+                <button onClick={handleSignOut} className="inline-block hover:underline">Logout</button>
               </>
             )}
           </div>
@@ -94,7 +68,7 @@ const Navbar = () => {
         {/* Mobile menu button */}
         <button 
           className="lg:hidden flex items-center relative z-50" 
-          onClick={toggleMobileMenu}
+         
           aria-label="Toggle mobile menu"
         >
           <div className={`w-6 h-6 flex flex-col justify-center items-center relative transition-transform duration-300 ${isMobileMenuOpen ? 'open' : ''}`}>
@@ -110,16 +84,17 @@ const Navbar = () => {
         className={`fixed inset-0 bg-gray-900 bg-opacity-75 z-40 transition-transform transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:hidden`}
       >
         <div className="flex flex-col items-center justify-center h-full space-y-8">
-          <Link href="/" className="text-white text-xl font-semibold" onClick={toggleMobileMenu}>Home</Link>
-          {isAuthenticated ? (
+          <Link href="/" className="text-white text-xl font-semibold">Home</Link>
+          {!session ? (
             <>
-              <Link href="/post" className="text-white text-xl font-semibold" onClick={toggleMobileMenu}>Post Item</Link>
-              <Link href="/profile" className="text-white text-xl font-semibold" onClick={toggleMobileMenu}>Profile</Link>
+              <Link href="/signup" className="text-white text-xl font-semibold" >Sign Up</Link>
+              <Link href="/login" className="text-white text-xl font-semibold">Login</Link>
             </>
           ) : (
             <>
-              <Link href="/signup" className="text-white text-xl font-semibold" onClick={toggleMobileMenu}>Sign Up</Link>
-              <Link href="/login" className="text-white text-xl font-semibold" onClick={toggleMobileMenu}>Login</Link>
+              <Link href="/post" className="text-white text-xl font-semibold">Post Item</Link>
+              <Link href="/profile" className="text-white text-xl font-semibold">Profile</Link>
+              <button onClick={handleSignOut} className="text-white text-xl font-semibold">Logout</button>
             </>
           )}
         </div>
@@ -129,4 +104,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-                                           

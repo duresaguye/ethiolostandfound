@@ -3,7 +3,8 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaSpinner } from 'react-icons/fa';
-import { auth } from "../../lib/auth"; // Adjust the path to your auth module
+import { authClient } from "../../lib/auth-client";
+
 
 const useItems = () => {
   return {
@@ -38,18 +39,10 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState(''); 
   const [currentPage, setCurrentPage] = useState(1);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { data: session, isPending } = authClient.useSession();
   const itemsPerPage = 6;
   const router = useRouter();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const session = await auth.api.getSession();
-      setIsAuthenticated(!!session);
-    };
-
-    checkAuth();
-  }, []);
 
   const handleFilterChange = (status) => {
     setFilter(status);
@@ -61,13 +54,6 @@ const Home = () => {
     setCurrentPage(1); 
   };
 
-  const handleItemClick = (id) => {
-    if (isAuthenticated) {
-      router.push(`/item/${id}`);
-    } else {
-      router.push('/login');
-    }
-  };
 
   const filteredItems = items
     .filter((item) =>
@@ -165,7 +151,7 @@ const Home = () => {
             <div
               key={item.id}
               className="relative max-w-sm text-white border border-gray-200 rounded-lg shadow transition-transform duration-300 hover:scale-105 hover:border-blue-500 cursor-pointer"
-              onClick={() => handleItemClick(item.id)}
+              
             >
               {item.image && (
                 <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
@@ -180,15 +166,31 @@ const Home = () => {
                 <h5 className="mb-2 text-2xl font-bold text-green-500">
                   {item.title}
                 </h5>
-                <Link 
-                  href={`/item/${item.id}`}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition duration-300"
-                >
-                  See More
-                  <svg className="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                  </svg>
-                </Link>
+                <Link
+      href={
+        session
+          ? `/item/${item.id}`
+          : `/login?redirect=${encodeURIComponent(`/item/${item.id}`)}`
+      }
+      className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition duration-300"
+    >
+      See More
+      <svg
+        className="w-3.5 h-3.5 ms-2"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 14 10"
+      >
+        <path
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M1 5h12m0 0L9 1m4 4L9 9"
+        />
+      </svg>
+    </Link>
               </div>
             </div>
           ))

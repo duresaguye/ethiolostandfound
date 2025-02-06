@@ -1,11 +1,20 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { authClient } from "../../../lib/auth-client";
+import { redirect,useRouter  } from 'next/navigation';
+import Loader from '../../components/Loader';
+
+
 
 const Profile = () => {
   const [items, setItems] = useState([]);
   const [user, setUser] = useState(null);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [activeTab, setActiveTab] = useState('posts');
+  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
+
+
 
   const fetchItems = () => {
     const mockItems = [
@@ -20,7 +29,15 @@ const Profile = () => {
     setUser(mockUser);
     setProfilePhoto(mockUser.photo || null);
   };
+// This useEffect hook handles redirection
+useEffect(() => {
+  if (!isPending && !session) {
+    // Only redirect when session is not pending and there is no session
+    router.push('/login');
+  }
+}, [session, isPending, router]); // Dependency array ensures it runs only when session or isPending changes
 
+  
   useEffect(() => {
     fetchItems();
     fetchUser();
@@ -41,6 +58,13 @@ const Profile = () => {
     // Simulate deletion of an item (no actual backend call here)
     setItems(items.filter(item => item.id !== itemId));
   };
+
+  if (isPending || !session) {
+  
+    return <div>
+      <Loader />
+    </div>; 
+  }
 
   const renderContent = () => {
     switch (activeTab) {
