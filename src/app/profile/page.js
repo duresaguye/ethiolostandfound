@@ -1,10 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { authClient } from "../../../lib/auth-client";
-import { redirect,useRouter  } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Loader from '../../components/Loader';
-
-
 
 const Profile = () => {
   const [items, setItems] = useState([]);
@@ -14,56 +12,40 @@ const Profile = () => {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
-
-
-  const fetchItems = () => {
-    const mockItems = [
-      { id: 1, title: 'Item 1', description: 'Description 1', location: 'Location 1', date_posted: '2023-01-01', image: '' },
-      { id: 2, title: 'Item 2', description: 'Description 2', location: 'Location 2', date_posted: '2023-02-01', image: '' }
-    ];
-    setItems(mockItems);
-  };
-
-  const fetchUser = () => {
-    const mockUser = { name: 'John Doe', bio: 'This is a sample bio', photo: '' };
-    setUser(mockUser);
-    setProfilePhoto(mockUser.photo || null);
-  };
-// This useEffect hook handles redirection
-useEffect(() => {
-  if (!isPending && !session) {
-    // Only redirect when session is not pending and there is no session
-    router.push('/login');
-  }
-}, [session, isPending, router]); // Dependency array ensures it runs only when session or isPending changes
-
-  
   useEffect(() => {
-    fetchItems();
-    fetchUser();
-  }, []);
-
-  const handleProfilePhotoChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('photo', file);
-
-      // Simulate a photo upload (no actual backend call here)
-      setProfilePhoto(URL.createObjectURL(file)); // Preview the uploaded photo
+    if (!isPending && !session) {
+      router.push('/login');
     }
-  };
+  }, [session, isPending, router]);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (session) {
+        try {
+          const response = await fetch(`/api/profile/${session.user.id}`);
+          if (response.ok) {
+            const data = await response.json();
+            setUser(data.user);
+            setItems(data.items);
+            setProfilePhoto(data.user.photo || null);
+          } else {
+            console.error('Failed to fetch profile data');
+          }
+        } catch (error) {
+          console.error('Failed to fetch profile data:', error);
+        }
+      }
+    };
+
+    fetchProfileData();
+  }, [session]);
 
   const handleDelete = (itemId) => {
-    // Simulate deletion of an item (no actual backend call here)
     setItems(items.filter(item => item.id !== itemId));
   };
 
   if (isPending || !session) {
-  
-    return <div>
-      <Loader />
-    </div>; 
+    return <div><Loader /></div>;
   }
 
   const renderContent = () => {
@@ -113,43 +95,6 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col lg:flex-row">
-      <aside className="w-20 lg:w-60 h-full bg-gray-800 lg:p-4 flex flex-col sticky top-0 left-0">
-        <div className="flex flex-col items-center lg:mt-0">
-          <input
-            type="file"
-            onChange={handleProfilePhotoChange}
-            className="hidden"
-            id="profile-photo-upload"
-          />
-          <label htmlFor="profile-photo-upload" className="cursor-pointer">
-            <div className="w-20 h-20 lg:w-32 lg:h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-600">
-              {profilePhoto ? (
-                <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-600 text-gray-400">
-                  {/* Placeholder for profile image */}
-                </div>
-              )}
-            </div>
-          </label>
-          <h1 className="text-base lg:text-xl font-bold text-center mt-4">{user ? user.name : 'Loading...'}</h1>
-        </div>
-        <nav className="flex flex-col space-y-2">
-          <button
-            onClick={() => setActiveTab('posts')}
-            className={`px-2 lg:px-4 py-2 text-sm lg:text-lg font-semibold ${activeTab === 'posts' ? 'bg-gray-700' : 'text-gray-400'} rounded-md`}
-          >
-            Posts
-          </button>
-          <button
-            onClick={() => setActiveTab('about')}
-            className={`px-2 lg:px-4 py-2 text-sm lg:text-lg font-semibold ${activeTab === 'about' ? 'bg-gray-700' : 'text-gray-400'} rounded-md`}
-          >
-            About
-          </button>
-        </nav>
-      </aside>
-
       <main className="flex-1 ml-20 lg:ml-20 p-4 lg:mt-0">
         <div className="rounded-lg shadow-lg">
           {renderContent()}

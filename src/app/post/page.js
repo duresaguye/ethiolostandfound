@@ -1,76 +1,92 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 import { authClient } from '../../../lib/auth-client';
 import Loader from '../../components/Loader';
 
 const PostItem = () => {
   const [item, setItem] = useState({
-    title: '',
+    itemName: '',
     description: '',
     location: '',
     contact: '',
     date: '',
     image: null,
-    item_type: 'found',
+    status: 'found',
   });
+ 
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
   // This useEffect hook handles redirection
   useEffect(() => {
     if (!isPending && !session) {
-      // Only redirect when session is not pending and there is no session
       router.push('/login');
     }
-  }, [session, isPending, router]); // Dependency array ensures it runs only when session or isPending changes
+  }, [session, isPending, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setItem({ ...item, [name]: value });
   };
 
-  const handleFileChange = (e) => {        
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     setItem({ ...item, image: file });
   };
 
   const validateForm = () => {
-    // Check if any required field is empty
-    return item.title && item.description && item.location && item.contact && item.date;
+    return item.itemName && item.description && item.location && item.contact && item.date;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) {
       alert('Please fill in all required fields.');
       return;
     }
 
-    // Log the data to simulate form submission
-    console.log('Item submitted:', item);
+    try {
+      const formData = new FormData();
+      formData.append('itemName', item.itemName);
+      formData.append('description', item.description);
+      formData.append('location', item.location);
+      formData.append('contact', item.contact);
+      formData.append('date', item.date);
+      formData.append('status', item.status);
+      formData.append('userId', session.user.id);
+      if (item.image) {
+        formData.append('image', item.image);
+      }
 
-    // Reset form fields after submission
-    setItem({
-      title: '',
-      description: '',
-      location: '',
-      contact: '',
-      date: '',
-      image: null,
-      item_type: 'found',
-    });
+      const response = await fetch('/api/items', {
+        method: 'POST',
+        body: formData,
+      });
 
-    alert('Item submitted successfully');
-    router.push('/profile'); // Navigate to the profile page after posting
+      if (response.ok) {
+        alert('Item submitted successfully');
+        setItem({
+          itemName: '',
+          description: '',
+          location: '',
+          contact: '',
+          date: '',
+          image: null,
+          status: 'found',
+        });
+        router.push('/profile');
+      } else {
+        alert('Failed to submit item');
+      }
+    } catch (error) {
+      console.error('Failed to submit item:', error);
+      alert('Failed to submit item');
+    }
   };
 
   if (isPending || !session) {
-   
-    return <div>
-      <Loader />
-    </div>; 
+    return <div><Loader /></div>;
   }
 
   return (
@@ -78,12 +94,13 @@ const PostItem = () => {
       <div className="container mx-auto p-4 max-w-xl">
         <h1 className="text-4xl font-bold mb-6 text-center">Post a Lost or Found Item</h1>
         <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg shadow-lg">
+          {/* Item Form Fields */}
           <div>
             <label className="block text-sm font-medium text-gray-300">Item Name</label>
             <input
               type="text"
-              name="title"
-              value={item.title}
+              name="itemName"
+              value={item.itemName}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
             />
@@ -139,8 +156,8 @@ const PostItem = () => {
           <div>
             <label className="block text-sm font-medium text-gray-300">Status</label>
             <select
-              name="item_type"
-              value={item.item_type}
+              name="status"
+              value={item.status}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
             >
@@ -148,12 +165,14 @@ const PostItem = () => {
               <option value="lost">Lost</option>
             </select>
           </div>
-          <button
-            type="submit"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 w-full"
-          >
-            Post Item
-          </button>
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-indigo-600 rounded-md text-white font-semibold hover:bg-indigo-700"
+            >
+              Submit Item
+            </button>
+          </div>
         </form>
       </div>
     </div>
