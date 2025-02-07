@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
+    "strict": true,
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -11,7 +12,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+  
     "noEmit": true,
     "incremental": true,
     "module": "esnext",
@@ -31,7 +32,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/signup/page.js", "middleware.js"  ],
+, "src/app/signup/page.tsx", "middleware.js", "test-connection.mjs"  ],
   "exclude": [
     "node_modules"
   ]

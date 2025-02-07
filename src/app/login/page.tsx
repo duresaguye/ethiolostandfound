@@ -42,7 +42,13 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  interface SignInContext {
+    error: {
+      message: string;
+    };
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     signIn();
   };

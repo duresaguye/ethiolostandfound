@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Loader from '../../components/Loader';
 
 const Profile = () => {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<Item[]>([]);
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
@@ -35,18 +35,28 @@ const Profile = () => {
     fetchItems();
   }, [session]);
 
-  const handleDelete = async (itemId) => {
+  interface Item {
+    id: string;
+    image?: string;
+    itemName: string;
+    description: string;
+    location: string;
+    contact: string;
+    date: string;
+  }
+
+  const handleDelete = async (itemId: string) => {
     try {
       const formData = new FormData();
       formData.append("id", itemId);
-      const response = await fetch(`/api/profile/${session.user.id}`, {
+      const response = await fetch(`/api/profile/${session?.user.id}`, {
         method: 'DELETE',
         body: formData,
       });
       if (response.ok) {
-        setItems(prevItems => prevItems.filter(item => item.id !== itemId));
+        setItems((prevItems: Item[]) => prevItems.filter(item => item.id !== itemId));
       } else {
-     
+        console.error('Failed to delete item');
       }
     } catch (error) {
       console.error('Error deleting item:', error);

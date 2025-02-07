@@ -4,18 +4,17 @@ import { useRouter } from 'next/navigation';
 import { authClient } from "../../../lib/auth-client"; 
 import { FcGoogle } from "react-icons/fc";
 
-
-const Signup = () => {
+const Signup: React.FC = () => {
   const router = useRouter();
 
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -41,7 +40,7 @@ const Signup = () => {
       });
 
       if (error) {
-        setError(error.message);
+        setError(error?.message || "An error occurred");
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -51,6 +50,7 @@ const Signup = () => {
   const handleLoginNavigate = () => {
     router.push('/login');
   };
+
   const signInWithGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
@@ -58,24 +58,24 @@ const Signup = () => {
     });
   };
 
-
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
       <div className="container mx-auto p-4 max-w-md">
         <h1 className="text-4xl font-bold mb-6 text-center">Sign Up</h1>
         <button
-  onClick={signInWithGoogle}
-  className="flex items-center justify-center w-full mt-4 bg-white text-gray-900 font-semibold py-2 rounded-md transition duration-200 hover:opacity-90"
->
-  <FcGoogle className="text-2xl mr-2" />
-  Sign up with Google
-</button>
+          onClick={signInWithGoogle}
+          className="flex items-center justify-center w-full mt-4 bg-white text-gray-900 font-semibold py-2 rounded-md transition duration-200 hover:opacity-90"
+        >
+          <FcGoogle className="text-2xl mr-2" />
+          Sign up with Google
+        </button>
 
-<div className="flex items-center my-4">
-  <hr className="flex-grow border-gray-700" />
-  <span className="mx-3 text-gray-400 font-semibold">OR</span>
-  <hr className="flex-grow border-gray-700" />
-</div>
+        <div className="flex items-center my-4">
+          <hr className="flex-grow border-gray-700" />
+          <span className="mx-3 text-gray-400 font-semibold">OR</span>
+          <hr className="flex-grow border-gray-700" />
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg shadow-lg">
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">Full Name</label>

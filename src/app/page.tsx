@@ -2,20 +2,31 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FaSpinner } from 'react-icons/fa';
+
 import { authClient } from "../../lib/auth-client";
 import Loader from '../components/Loader';
 
+interface Item {
+  id: string;
+  itemName: string;
+  description: string;
+  status: 'lost' | 'found' | 'all';
+  image?: string;
+  location: string;
+  date: string;
+}
+
 const Home = () => {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [filter, setFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [locationQuery, setLocationQuery] = useState(''); 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [items, setItems] = useState<Item[]>([]); 
+  const [loading, setLoading] = useState<boolean>(true); 
+  const [error, setError] = useState<string>(''); 
+  const [filter, setFilter] = useState<'all' | 'lost' | 'found'>('all');
+  const [searchQuery, setSearchQuery] = useState<string>(''); 
+  const [locationQuery, setLocationQuery] = useState<string>(''); 
+  const [currentPage, setCurrentPage] = useState<number>(1); 
+
   const { data: session, isPending } = authClient.useSession();
-  const itemsPerPage = 6;
+  const itemsPerPage = 15;
   const router = useRouter();
 
   useEffect(() => {
@@ -39,12 +50,12 @@ const Home = () => {
     fetchItems();
   }, []);
 
-  const handleFilterChange = (status) => {
+  const handleFilterChange = (status: 'all' | 'lost' | 'found'): void => {
     setFilter(status);
     setCurrentPage(1); 
   };
 
-  const handleSearchChange = (event) => {
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setSearchQuery(event.target.value);
     setCurrentPage(1); 
   };
@@ -64,13 +75,13 @@ const Home = () => {
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
-  const handlePageChange = (pageNumber) => {
+  const handlePageChange = (pageNumber: number): void => {
     setCurrentPage(pageNumber);
   };
 
   if (loading) {
     return (
-      <div >
+      <div>
         <Loader />
       </div>
     );
@@ -82,7 +93,6 @@ const Home = () => {
 
   return (
     <div className="container mx-auto p-4 text-gray-100">
-      
       <section className="text-center mb-6 p-6">
         <h1 className="text-5xl font-extrabold mb-4">
           <span className="text-green-600">Welcome to </span>
@@ -145,7 +155,6 @@ const Home = () => {
             <div
               key={item.id}
               className="relative max-w-sm text-white border border-gray-200 rounded-lg shadow transition-transform duration-300 hover:scale-105 hover:border-blue-500 cursor-pointer"
-              
             >
               {item.image && (
                 <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
@@ -159,6 +168,9 @@ const Home = () => {
               <div className="p-5">
                 <h5 className="mb-2 text-2xl font-bold text-green-500">
                   {item.itemName}
+                </h5>
+                <h5 className="mb-2 text-2xl font-bold text-green-500">
+                  {item.description}
                 </h5>
                 <Link
                   href={`/item/${item.id}`}
@@ -223,7 +235,6 @@ const Home = () => {
           &gt;
         </button>
       </div>
-    
     </div>
   );
 };

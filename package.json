@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",
+    "@supabase/supabase-js": "^2.48.1",
     "@types/pg": "^8.11.11",
     "better-auth": "^1.1.15",
     "class-variance-authority": "^0.7.1",
@@ -26,7 +27,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@types/node": "22.13.0",
+    "@types/node": "^22.13.0",
     "@types/react": "^19.0.8",
     "postcss": "^8",
     "prisma": "^6.3.0",

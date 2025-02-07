@@ -5,7 +5,7 @@ import { authClient } from '../../../lib/auth-client';
 import Loader from '../../components/Loader';
 
 const PostItem = () => {
-  const [item, setItem] = useState({
+  const [item, setItem] = useState<Item>({
     itemName: '',
     description: '',
     location: '',
@@ -25,13 +25,31 @@ const PostItem = () => {
     }
   }, [session, isPending, router]);
 
-  const handleChange = (e) => {
+  interface Item {
+    itemName: string;
+    description: string;
+    location: string;
+    contact: string;
+    date: string;
+    image: File | null;
+    status: 'found' | 'lost';
+  }
+
+  interface Session {
+    // Define the session properties based on your authClient
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): void => {
     const { name, value } = e.target;
     setItem({ ...item, [name]: value });
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) {
+      return;
+    }
+    const file = files[0];
     if (file && file.size > 5 * 1024 * 1024) { // 5MB limit
       alert('File size too large (max 5MB)');
       return;
@@ -43,7 +61,7 @@ const PostItem = () => {
     return item.itemName && item.description && item.location && item.contact && item.date;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) {
       alert('Please fill in all required fields.');
