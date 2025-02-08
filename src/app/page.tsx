@@ -115,13 +115,7 @@ const Home = () => {
           onChange={handleSearchChange}
           className="px-4 py-2 mr-2 bg-gray-800 rounded-lg focus:outline-none text-white"
         />
-        <input
-          type="text"
-          placeholder="Search based on location..."
-          value={locationQuery}
-          onChange={(e) => setLocationQuery(e.target.value)}
-          className="px-4 py-2 bg-gray-800 rounded-lg focus:outline-none text-white"
-        />
+      
       </section>
 
       <div className="flex justify-center mb-6">
