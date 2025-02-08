@@ -3,19 +3,27 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { authClient } from "../../lib/auth-client";
 import EthiopiaFlag from "./EthiopiaFlag";
+import { useRouter } from "next/navigation";
+import Loader from '../components/Loader';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
 
   const handleSignOut = async () => {
     await authClient.signOut();
+    router.push('/');
   };
 
   const handleLinkClick = () => {
     // Close mobile menu on link click
     setIsMobileMenuOpen(false);
   };
+
+  if (isPending) {
+    return <Loader />; // Display the Loader while checking authentication status
+  }
 
   return (
     <>
