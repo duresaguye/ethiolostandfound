@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect, useMemo, ChangeEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
 import { authClient } from "../../lib/auth-client";
 import Loader from '../components/Loader';
+import { debounce } from 'lodash';
 
 interface Item {
   id: string;
@@ -17,18 +17,18 @@ interface Item {
 }
 
 const Home = () => {
-  const [items, setItems] = useState<Item[]>([]); 
-  const [loading, setLoading] = useState<boolean>(true); 
-  const [error, setError] = useState<string>(''); 
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
   const [filter, setFilter] = useState<'all' | 'lost' | 'found'>('all');
-  const [searchQuery, setSearchQuery] = useState<string>(''); 
-  const [locationQuery, setLocationQuery] = useState<string>(''); 
-  const [currentPage, setCurrentPage] = useState<number>(1); 
-
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [locationQuery, setLocationQuery] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const { data: session, isPending } = authClient.useSession();
   const itemsPerPage = 15;
   const router = useRouter();
 
+  // Fetch items from API on component mount
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
@@ -46,33 +46,30 @@ const Home = () => {
         setLoading(false);
       }
     };
-
     fetchItems();
   }, []);
 
-  const handleFilterChange = (status: 'all' | 'lost' | 'found'): void => {
-    setFilter(status);
-    setCurrentPage(1); 
-  };
-
-  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>): void => {
+  // Debounced search handler
+  const handleSearchChange = useMemo(() => debounce((event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
-    setCurrentPage(1); 
-  };
+    setCurrentPage(1);
+  }, 500), []);
 
-  const filteredItems = items
-    .filter((item) =>
-      (filter === 'all' || item.status === filter) &&
-      (item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (item.location.toLowerCase().includes(locationQuery.toLowerCase())) 
-    )
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  // Memoize filtered items to avoid re-calculations
+  const filteredItems = useMemo(() => {
+    return items
+      .filter((item) =>
+        (filter === 'all' || item.status === filter) &&
+        (item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        (item.location.toLowerCase().includes(locationQuery.toLowerCase()))
+      )
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [items, filter, searchQuery, locationQuery]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
-
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   const handlePageChange = (pageNumber: number): void => {
@@ -92,14 +89,15 @@ const Home = () => {
   }
 
   return (
+    
     <div className="container mx-auto p-4 text-gray-100">
       <section className="text-center mb-6 p-6">
         <h1 className="text-5xl font-extrabold mb-4">
           <span className="text-green-600">Welcome to </span>
           <span className="text-yellow-600">Ethiolost</span>
-          <img 
-            src="/Emblem_of_Ethiopia.svg.png" 
-            alt="Emblem of Ethiopia" 
+          <img
+            src="/Emblem_of_Ethiopia.svg.png"
+            alt="Emblem of Ethiopia"
             className="w-10 h-10 inline-block align-middle ml-2"
           />
           <span className="text-red-600"> Found!</span>
@@ -128,19 +126,19 @@ const Home = () => {
 
       <div className="flex justify-center mb-6">
         <button
-          onClick={() => handleFilterChange('all')}
+          onClick={() => setFilter('all')}
           className={`px-4 py-2 mx-2 rounded-lg ${filter === 'all' ? 'bg-indigo-600' : 'bg-gray-800'} text-white`}
         >
           All
         </button>
         <button
-          onClick={() => handleFilterChange('lost')}
+          onClick={() => setFilter('lost')}
           className={`px-4 py-2 mx-2 rounded-lg ${filter === 'lost' ? 'bg-indigo-600' : 'bg-gray-800'} text-white`}
         >
           Lost
         </button>
         <button
-          onClick={() => handleFilterChange('found')}
+          onClick={() => setFilter('found')}
           className={`px-4 py-2 mx-2 rounded-lg ${filter === 'found' ? 'bg-indigo-600' : 'bg-gray-800'} text-white`}
         >
           Found
@@ -158,10 +156,10 @@ const Home = () => {
             >
               {item.image && (
                 <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
-                  <img 
-                    src={item.image} 
-                    alt={item.itemName} 
-                    className="object-cover w-full h-full" 
+                  <img
+                    src={item.image}
+                    alt={item.itemName}
+                    className="object-cover w-full h-full"
                   />
                 </div>
               )}
@@ -208,7 +206,6 @@ const Home = () => {
       </div>
 
       <div className="flex justify-center mt-6">
-        {/* Pagination Controls */}
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           className="px-4 py-2 mx-1 rounded-lg bg-gray-800 text-white"
