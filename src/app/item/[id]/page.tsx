@@ -1,14 +1,24 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Item } from "../../../types/item";
 import Loader from "../../../components/Loader";
+import { authClient } from "../../../../lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const ItemDetails: React.FC = () => {
   const { id } = useParams();
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.push('/login');
+    }
+  }, [session, isPending, router]);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -24,10 +34,13 @@ const ItemDetails: React.FC = () => {
         setLoading(false);
       }
     };
-    fetchItem();
-  }, [id]);
 
-  if (loading) {
+    if (session) {
+      fetchItem();
+    }
+  }, [id, session]);
+
+  if (isPending || loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader />
