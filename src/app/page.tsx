@@ -158,10 +158,10 @@ const Home = () => {
                 </div>
               )}
               <div className="p-5">
-                <h5 className="mb-2 text-2xl font-bold text-green-500">
+                <h5 className="mb-2 text-2xl font-bold text-gray-100">
                   {item.itemName}
                 </h5>
-                <h5 className="mb-2 text-2xl font-bold text-green-500">
+                <h5 className="mb-2 text-2xl font-bold text-gray-100">
                   {item.description}
                 </h5>
                 <Link

@@ -62,8 +62,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const formData = await req.formData();
-    const itemId = formData.get("id") as string;
+    const { itemId } = await req.json();
     if (!itemId) {
       console.log("Missing item ID");
       return NextResponse.json({ error: "Item ID is required" }, { status: 400 });

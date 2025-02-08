@@ -48,15 +48,16 @@ const Profile = () => {
     contact: string;
     date: string;
   }
-
   const handleDelete = async (itemId: string) => {
     try {
-      const formData = new FormData();
-      formData.append("id", itemId);
-      const response = await fetch(`/api/profile/${session?.user.id}`, {
+      const response = await fetch(`/api/profile/${itemId}`, {
         method: 'DELETE',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemId }),
       });
+  
       if (response.ok) {
         setItems((prevItems: Item[]) => prevItems.filter(item => item.id !== itemId));
       } else {
