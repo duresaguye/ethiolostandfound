@@ -22,7 +22,7 @@ const Navbar = () => {
   };
 
   if (isPending) {
-    return <Loader />; // Display the Loader while checking authentication status
+    return <Loader />; 
   }
 
   return (

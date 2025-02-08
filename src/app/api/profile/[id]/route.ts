@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     // Retrieve just the items that the logged-in user uploaded.
     const items = await prisma.lostItem.findMany({
       where: { userId: session.user.id },
-      // Adjust the selected fields to only include what was uploaded.
+    
       select: {
         id: true,
         itemName: true,
