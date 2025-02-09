@@ -10,13 +10,13 @@ const ItemDetails: React.FC = () => {
   const { id } = useParams();
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
   useEffect(() => {
     if (!isPending && !session) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [session, isPending, router]);
 
@@ -49,11 +49,17 @@ const ItemDetails: React.FC = () => {
   }
 
   if (error) {
-    return <p className="text-center text-red-500 p-8 bg-red-50 rounded-lg max-w-md mx-auto mt-12">{error}</p>;
+    return (
+      <p className="text-center text-red-500 p-8 bg-red-50 rounded-lg max-w-md mx-auto mt-12">
+        {error}
+      </p>
+    );
   }
 
   if (!item) {
-    return <p className="text-center text-gray-500 p-8 mt-12">Item not found</p>;
+    return (
+      <p className="text-center text-gray-500 p-8 mt-12">Item not found</p>
+    );
   }
 
   // Format the date using toLocaleDateString
@@ -78,16 +84,23 @@ const ItemDetails: React.FC = () => {
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                
-              </div>
             </div>
 
             {/* Details Section */}
             <div className="space-y-8">
-              <div className="border-b border-gray-200 pb-6">
+              <div className="border-b border-gray-200 pb-6 flex items-center justify-between">
                 <h2 className="text-2xl font-semibold mb-4">Item Details</h2>
-                <p className="leading-relaxed">{item.description}</p>
+
+                {/* Status Label */}
+                <span
+                  className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                    item.status === "lost"
+                      ? "bg-red-500 text-white"
+                      : "bg-green-500 text-white"
+                  }`}
+                >
+                  {item.status === "lost" ? "Lost" : "Found"}
+                </span>
               </div>
 
               <div className="space-y-6">
@@ -95,11 +108,15 @@ const ItemDetails: React.FC = () => {
                   <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                       <dt className="text-sm font-medium">Date</dt>
-                      <dd className="mt-1 text-lg font-semibold">{formattedDate}</dd>
+                      <dd className="mt-1 text-lg font-semibold">
+                        {formattedDate}
+                      </dd>
                     </div>
                     <div>
                       <dt className="text-sm font-medium">Location</dt>
-                      <dd className="mt-1 text-lg font-semibold">{item.location}</dd>
+                      <dd className="mt-1 text-lg font-semibold">
+                        {item.location}
+                      </dd>
                     </div>
                   </dl>
                 </div>
@@ -107,8 +124,13 @@ const ItemDetails: React.FC = () => {
                 {/* Conditional Rendering of Additional Information */}
                 {item.status === "lost" ? (
                   <div className="p-5 rounded-xl">
-                    <h3 className="text-lg font-semibold text-blue-50 mb-3">Additional Information</h3>
-                    <p>If You Found This Item, please contact us with the following details:</p>
+                    <h3 className="text-lg font-semibold text-blue-50 mb-3">
+                      Additional Information
+                    </h3>
+                    <p>
+                      If You Found This Item, please contact us with the
+                      following details:
+                    </p>
                     <ul className="mt-2 space-y-1">
                       <li>• Contact: {item.contact}</li>
                       <li>• Item Name: {item.itemName}</li>
@@ -116,8 +138,13 @@ const ItemDetails: React.FC = () => {
                   </div>
                 ) : item.status === "found" ? (
                   <div className="p-5 rounded-xl">
-                    <h3 className="text-lg font-semibold text-blue-50 mb-3">Additional Information</h3>
-                    <p>If this is your item, please contact us with the following details:</p>
+                    <h3 className="text-lg font-semibold text-blue-50 mb-3">
+                      Additional Information
+                    </h3>
+                    <p>
+                      If this is your item, please contact us with the following
+                      details:
+                    </p>
                     <ul className="mt-2 space-y-1">
                       <li>• Contact: {item.contact}</li>
                       <li>• Item Name: {item.itemName}</li>
