@@ -42,13 +42,16 @@ yarn install
 Create a `.env` file in the root directory and add the following variables:
 
 ```env
-DATABASE_URL=your_postgresql_database_url
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-BETTERAUTH_SECRET=your_betterauth_secret
+DATABASE_URL=Connect to Supabase via connection pooling with Supavisor.
+DIRECT_URL=Your Supabase direct connection URL
+NEXT_PUBLIC_SUPABASE_URL=Your Supabase project URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=Your Supabase anon key
+CLOUDINARY_CLOUD_NAME=Your Cloudinary cloud name
+CLOUDINARY_API_KEY=Your Cloudinary API key
+CLOUDINARY_API_SECRET=Your Cloudinary API secret
+BETTERAUTH_SECRET=Your BetterAuth secret
+GOOGLE_CLIENT_ID=Your Google client ID
+GOOGLE_CLIENT_SECRET=Your Google client secret
 ```
 
 ### 4️⃣ Run the Development Server
