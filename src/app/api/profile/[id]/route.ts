@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { headers } from "next/headers"; 
 import { auth } from "../../../../../lib/auth";
@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 //
 // ─── GET: Retrieve Only the User’s Uploaded Items ─────────────────────────────
 //
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -46,12 +46,9 @@ export async function GET(req: Request) {
 //
 // ─── DELETE: Remove an Uploaded Item ──────────────────────────────────────────
 //
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
   try {
     console.log("DELETE request received");
-
-    const sessionHeaders = headers();
-    console.log("Headers:", sessionHeaders);
 
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -62,11 +59,8 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { itemId } = await req.json();
-    if (!itemId) {
-      console.log("Missing item ID");
-      return NextResponse.json({ error: "Item ID is required" }, { status: 400 });
-    }
+    const itemId = req.nextUrl.pathname.split('/').pop();  // Get ID from URL params
+    console.log("Deleting item ID:", itemId);
 
     const item = await prisma.lostItem.findUnique({ where: { id: itemId } });
 
