@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { ThemeProvider } from "../components/theme-provider"
 import { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/react"
 
 
 const geistSans = Geist({
@@ -43,6 +44,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Footer />
         </Suspense>
         </ThemeProvider>
+        
+        <Analytics />
       </body>
     </html>
   );
