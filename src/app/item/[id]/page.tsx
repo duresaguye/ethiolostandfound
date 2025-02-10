@@ -68,9 +68,9 @@ const ItemDetails: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b  p-8">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors duration-300">
       <div className="max-w-4xl mx-auto">
-        <div className=" rounded-3xl shadow-xl p-8 sm:p-12 lg:p-16 transition-all duration-300 hover:shadow-2xl">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl dark:shadow-gray-700/30 p-8 sm:p-12 lg:p-16 transition-all duration-300 hover:shadow-2xl">
           <div className="grid gap-8 md:grid-cols-2">
             {/* Image Section */}
             <div className="relative group overflow-hidden rounded-2xl aspect-square">
@@ -81,7 +81,7 @@ const ItemDetails: React.FC = () => {
                   className="w-full h-full object-cover transform transition-all duration-500 group-hover:scale-105"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center ">
+                <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300">
                   No Image Available
                 </div>
               )}
@@ -91,9 +91,9 @@ const ItemDetails: React.FC = () => {
             {/* Details Section */}
             <div className="space-y-8">
               {/* Item Details and Status */}
-              <div className="border-b border-gray-200 pb-6">
+              <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-semibold ">
+                  <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
                     {item.itemName}
                   </h2>
                   <span
@@ -106,25 +106,25 @@ const ItemDetails: React.FC = () => {
                     {item.status === "lost" ? "Lost" : "Found"}
                   </span>
                 </div>
-                <p className="leading-relaxed mt-4 ">
+                <p className="leading-relaxed mt-4 text-gray-600 dark:text-gray-300">
                   {item.description}
                 </p>
               </div>
 
               {/* Item Information */}
-              <div className="p-5  rounded-xl">
+              <div className="p-5 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
                 <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div>
-                    <dt className="text-sm font-medium ">Date</dt>
-                    <dd className="mt-1 text-lg font-semibold ">
+                    <dt className="text-sm font-medium text-gray-600 dark:text-gray-400">Date</dt>
+                    <dd className="mt-1 text-lg font-semibold text-gray-800 dark:text-gray-100">
                       {formattedDate}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium ">
+                    <dt className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Location
                     </dt>
-                    <dd className="mt-1 text-lg font-semibold ">
+                    <dd className="mt-1 text-lg font-semibold text-gray-800 dark:text-gray-100">
                       {item.location}
                     </dd>
                   </div>
@@ -132,18 +132,18 @@ const ItemDetails: React.FC = () => {
               </div>
 
               {/* Contact & Additional Info */}
-              <div className="p-5  rounded-xl">
-                <h3 className="text-lg font-semibold mb-3">
+              <div className="p-5 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
+                <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-100">
                   {item.status === "lost"
                     ? "If You Found This Item"
                     : "If This Is Your Item"}
                 </h3>
-                <p className="">
+                <p className="text-gray-600 dark:text-gray-300">
                   {item.status === "lost"
                     ? "Please contact the owner with the details below:"
                     : "Please reach out to claim your item:"}
                 </p>
-                <ul className="mt-2 space-y-2 ">
+                <ul className="mt-2 space-y-2 text-gray-700 dark:text-gray-300">
                   <li>
                     📞 <span className="font-semibold">{item.contact}</span>
                   </li>
@@ -156,13 +156,13 @@ const ItemDetails: React.FC = () => {
               <div className="flex gap-4 w-full">
                 <a
                   href={`tel:${item.contact}`}
-                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:bg-blue-700 transition duration-300"
+                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 dark:bg-blue-700 text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition duration-300"
                 >
                   📞 Call
                 </a>
                 <a
                   href={`sms:${item.contact}`}
-                  className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:bg-green-700 transition duration-300"
+                  className="flex-1 flex items-center justify-center gap-2 bg-green-600 dark:bg-green-700 text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:bg-green-700 dark:hover:bg-green-800 transition duration-300"
                 >
                   ✉️ Send SMS
                 </a>
