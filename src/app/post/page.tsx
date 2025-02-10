@@ -4,6 +4,16 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '../../../lib/auth-client';
 import Loader from '../../components/Loader';
 
+interface Item {
+  itemName: string;
+  description: string;
+  location: string;
+  contact: string;
+  date: string;
+  image: File | null;
+  status: 'found' | 'lost';
+}
+
 const PostItem = () => {
   const [item, setItem] = useState<Item>({
     itemName: '',
@@ -25,36 +35,20 @@ const PostItem = () => {
     }
   }, [session, isPending, router]);
 
-  interface Item {
-    itemName: string;
-    description: string;
-    location: string;
-    contact: string;
-    date: string;
-    image: File | null;
-    status: 'found' | 'lost';
-  }
-
-  interface Session {
-    // Define the session properties based on your authClient
-  }
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): void => {
     const { name, value } = e.target;
-    setItem({ ...item, [name]: value });
+    setItem((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) {
-      return;
-    }
-    const file = files[0];
-    if (file && file.size > 5 * 1024 * 1024) { // 5MB limit
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
       alert('File size too large (max 5MB)');
       return;
     }
-    setItem({ ...item, image: file });
+    setItem((prev) => ({ ...prev, image: file }));
   };
 
   const validateForm = () => {
@@ -71,37 +65,21 @@ const PostItem = () => {
     setIsSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append('itemName', item.itemName);
-      formData.append('description', item.description);
-      formData.append('location', item.location);
-      formData.append('contact', item.contact);
-      formData.append('date', item.date);
-      formData.append('status', item.status);
-      
-      if (item.image) {
-        formData.append('image', item.image);
-      }
+      Object.entries(item).forEach(([key, value]) => {
+        if (key === 'image' && value) formData.append(key, value);
+        else formData.append(key, String(value));
+      });
 
       const response = await fetch('/api/items', {
         method: 'POST',
         body: formData,
       });
 
-      const result = await response.json();
-      
       if (response.ok) {
         alert('Item submitted successfully');
-        setItem({
-          itemName: '',
-          description: '',
-          location: '',
-          contact: '',
-          date: '',
-          image: null,
-          status: 'found',
-        });
         router.push('/profile');
       } else {
+        const result = await response.json();
         alert(result.error || 'Failed to submit item');
       }
     } catch (error) {
@@ -113,95 +91,111 @@ const PostItem = () => {
   };
 
   if (isPending || !session) {
-    return <div><Loader /></div>;
+    return <Loader />;
   }
 
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-      <div className="container mx-auto p-4 max-w-xl">
-        <h1 className="text-4xl font-bold mb-6 text-center">Post a Lost or Found Item</h1>
-        <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg shadow-lg">
-          {/* Item Form Fields */}
+    <div className="min-h-screen p-8 flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+      <div className="mx-auto max-w-xl w-full bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg ring-1 ring-gray-200 dark:ring-gray-700">
+        <h1 className="text-4xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">
+          Post a Lost or Found Item
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {[
+            { label: "Item Name", name: "itemName", type: "text" },
+            { label: "Location", name: "location", type: "text" },
+            { label: "Contact Number", name: "contact", type: "tel" },
+            { label: "Date", name: "date", type: "date" },
+          ].map(({ label, name, type }) => (
+            <div key={name}>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {label}
+              </label>
+              <input
+                type={type}
+                name={name}
+                value={item[name as keyof Item] as string}
+                onChange={handleChange}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400 transition-all"
+                placeholder={`Enter ${label.toLowerCase()}`}
+              />
+            </div>
+          ))}
+
           <div>
-            <label className="block text-sm font-medium text-gray-300">Item Name</label>
-            <input
-              type="text"
-              name="itemName"
-              value={item.itemName}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300">Description</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Description
+            </label>
             <textarea
               name="description"
               value={item.description}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400 transition-all"
+              rows={4}
+              placeholder="Describe the item in detail..."
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-300">Location</label>
-            <input
-              type="text"
-              name="location"
-              value={item.location}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
-            />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Upload Image
+            </label>
+            <div className="flex items-center justify-center w-full">
+              <label className="flex flex-col w-full cursor-pointer">
+                <div className="px-4 py-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors">
+                  <div className="text-center">
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {item.image ? item.image.name : 'Click to upload image (max 5MB)'}
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    name="image"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                </div>
+              </label>
+            </div>
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-300">Contact Number</label>
-            <input
-              type="text"
-              name="contact"
-              value={item.contact}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300">Date</label>
-            <input
-              type="date"
-              name="date"
-              value={item.date}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300">Image</label>
-            <input
-              type="file"
-              name="image"
-              onChange={handleFileChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300">Status</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Status
+            </label>
             <select
               name="status"
               value={item.status}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-all"
             >
-              <option value="found">Found</option>
-              <option value="lost">Lost</option>
+              <option value="found">Found Item</option>
+              <option value="lost">Lost Item</option>
             </select>
           </div>
-          <div className="flex justify-center">
+
+          <div className="pt-4">
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-4 py-2 bg-indigo-600 rounded-md text-white font-semibold ${
-                isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-indigo-700'
+              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${
+                isSubmitting 
+                  ? 'bg-indigo-400 dark:bg-indigo-600 cursor-not-allowed'
+                  : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800'
               }`}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Item'}
+              {isSubmitting ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                  Submitting...
+                </span>
+              ) : (
+                'Submit Item'
+              )}
             </button>
           </div>
         </form>

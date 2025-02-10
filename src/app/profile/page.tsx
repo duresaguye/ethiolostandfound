@@ -4,6 +4,16 @@ import { authClient } from "../../../lib/auth-client";
 import { useRouter } from 'next/navigation';
 import Loader from '../../components/Loader';
 
+interface Item {
+  id: string;
+  image?: string;
+  itemName: string;
+  description: string;
+  location: string;
+  contact: string;
+  date: string;
+}
+
 const Profile = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -39,25 +49,11 @@ const Profile = () => {
     fetchItems();
   }, [fetchItems]);
 
-  interface Item {
-    id: string;
-    image?: string;
-    itemName: string;
-    description: string;
-    location: string;
-    contact: string;
-    date: string;
-  }
   const handleDelete = async (itemId: string) => {
     try {
       const response = await fetch(`/api/profile/${itemId}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ itemId }),
       });
-  
       if (response.ok) {
         setItems((prevItems: Item[]) => prevItems.filter(item => item.id !== itemId));
       } else {
@@ -69,42 +65,71 @@ const Profile = () => {
   };
 
   if (isPending || !session || loading) {
-    return <div><Loader /></div>;
+    return (
+      <div>
+        <Loader />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-8">Posted Items</h2>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <h2 className="text-3xl font-bold text-center mb-4 text-gray-800 dark:text-gray-100">
+          Hey {session?.user?.name}, these are your posted items!
+        </h2>
+        <p className="text-center text-gray-600 dark:text-gray-300 mb-6">
+          If the rightful owner contacts you and retrieves an item, please remove it to keep your listings up-to-date.
+        </p>
+
         {items.length === 0 ? (
-          <p className="text-center">No items to display</p>
+          <p className="text-center text-gray-600 dark:text-gray-400">
+            No items listed yet. Post something to help reconnect lost items with their owners!
+          </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {items.map(item => (
-              <div key={item.id} className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+              <div
+                key={item.id}
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl dark:shadow-gray-700 transition-all duration-300 overflow-hidden flex flex-col"
+              >
                 {item.image && (
-                  <img
-                    className="w-full h-32 object-cover"
-                    src={item.image}
-                    alt={item.itemName}
-                  />
-                )}
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">{item.itemName}</h3>
-                  <p className="text-sm">{item.description}</p>
-                  <p className="text-xs text-gray-400 mt-1">Location: {item.location}</p>
-                  <p className="text-xs text-gray-400 mt-1">Contact: {item.contact}</p>
-                  <p className="text-xs text-gray-400">
-                    Date: {new Date(item.date).toISOString().slice(0, 10)}
-                  </p>
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="bg-red-500 text-xs px-2 py-1 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      className="w-full h-full object-cover rounded-t-xl"
+                      src={item.image}
+                      alt={item.itemName}
+                    />
                   </div>
+                )}
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                    {item.itemName}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 flex-1">
+                    {item.description}
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-gray-500 dark:text-gray-400 flex items-center">
+                      <span className="mr-2">📍</span>
+                      {item.location}
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 flex items-center">
+                      <span className="mr-2">📞</span>
+                      {item.contact}
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 flex items-center">
+                      <span className="mr-2">🗓</span>
+                      {new Date(item.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="mt-4 w-full px-6 py-3 bg-red-500 dark:bg-red-600 text-white rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition-colors duration-300"
+                  >
+                    ❌ Delete
+                  </button>
                 </div>
               </div>
             ))}

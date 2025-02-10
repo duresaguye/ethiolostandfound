@@ -1,10 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Item } from "../../../types/item";
 import Loader from "../../../components/Loader";
 import { authClient } from "../../../../lib/auth-client";
-import { useRouter } from "next/navigation";
 
 const ItemDetails: React.FC = () => {
   const { id } = useParams();
@@ -50,7 +49,7 @@ const ItemDetails: React.FC = () => {
 
   if (error) {
     return (
-      <p className="text-center text-red-500 p-8 bg-red-50 rounded-lg max-w-md mx-auto mt-12">
+      <p className="text-center text-red-500 p-6 bg-red-100 rounded-lg max-w-md mx-auto mt-12">
         {error}
       </p>
     );
@@ -58,11 +57,10 @@ const ItemDetails: React.FC = () => {
 
   if (!item) {
     return (
-      <p className="text-center text-gray-500 p-8 mt-12">Item not found</p>
+      <p className="text-center  p-6 mt-12">Item not found</p>
     );
   }
 
-  // Format the date using toLocaleDateString
   const formattedDate = new Date(item.date).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
@@ -70,87 +68,104 @@ const ItemDetails: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b py-12 px-4 sm:px-6 lg:px-8 text-gray-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="rounded-3xl shadow-xl p-8 sm:p-12 lg:p-16 transition-all duration-300 hover:shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-b  p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className=" rounded-3xl shadow-xl p-8 sm:p-12 lg:p-16 transition-all duration-300 hover:shadow-2xl">
           <div className="grid gap-8 md:grid-cols-2">
             {/* Image Section */}
             <div className="relative group overflow-hidden rounded-2xl aspect-square">
-              {item.image && (
+              {item.image ? (
                 <img
                   src={item.image}
                   alt={item.itemName}
                   className="w-full h-full object-cover transform transition-all duration-500 group-hover:scale-105"
                 />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center ">
+                  No Image Available
+                </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             </div>
 
             {/* Details Section */}
             <div className="space-y-8">
-              <div className="border-b border-gray-200 pb-6 flex items-center justify-between">
-                <h2 className="text-2xl font-semibold mb-4">Item Details</h2>
-
-                {/* Status Label */}
-                <span
-                  className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                    item.status === "lost"
-                      ? "bg-red-500 text-white"
-                      : "bg-green-500 text-white"
-                  }`}
-                >
-                  {item.status === "lost" ? "Lost" : "Found"}
-                </span>
+              {/* Item Details and Status */}
+              <div className="border-b border-gray-200 pb-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-semibold ">
+                    {item.itemName}
+                  </h2>
+                  <span
+                    className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                      item.status === "lost"
+                        ? "bg-red-500 text-white"
+                        : "bg-green-500 text-white"
+                    }`}
+                  >
+                    {item.status === "lost" ? "Lost" : "Found"}
+                  </span>
+                </div>
+                <p className="leading-relaxed mt-4 ">
+                  {item.description}
+                </p>
               </div>
 
-              <div className="space-y-6">
-                <div className="p-5 rounded-xl">
-                  <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
-                      <dt className="text-sm font-medium">Date</dt>
-                      <dd className="mt-1 text-lg font-semibold">
-                        {formattedDate}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm font-medium">Location</dt>
-                      <dd className="mt-1 text-lg font-semibold">
-                        {item.location}
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
+              {/* Item Information */}
+              <div className="p-5  rounded-xl">
+                <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-sm font-medium ">Date</dt>
+                    <dd className="mt-1 text-lg font-semibold ">
+                      {formattedDate}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium ">
+                      Location
+                    </dt>
+                    <dd className="mt-1 text-lg font-semibold ">
+                      {item.location}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
 
-                {/* Conditional Rendering of Additional Information */}
-                {item.status === "lost" ? (
-                  <div className="p-5 rounded-xl">
-                    <h3 className="text-lg font-semibold text-blue-50 mb-3">
-                      Additional Information
-                    </h3>
-                    <p>
-                      If You Found This Item, please contact us with the
-                      following details:
-                    </p>
-                    <ul className="mt-2 space-y-1">
-                      <li>• Contact: {item.contact}</li>
-                      <li>• Item Name: {item.itemName}</li>
-                    </ul>
-                  </div>
-                ) : item.status === "found" ? (
-                  <div className="p-5 rounded-xl">
-                    <h3 className="text-lg font-semibold text-blue-50 mb-3">
-                      Additional Information
-                    </h3>
-                    <p>
-                      If this is your item, please contact us with the following
-                      details:
-                    </p>
-                    <ul className="mt-2 space-y-1">
-                      <li>• Contact: {item.contact}</li>
-                      <li>• Item Name: {item.itemName}</li>
-                    </ul>
-                  </div>
-                ) : null}
+              {/* Contact & Additional Info */}
+              <div className="p-5  rounded-xl">
+                <h3 className="text-lg font-semibold mb-3">
+                  {item.status === "lost"
+                    ? "If You Found This Item"
+                    : "If This Is Your Item"}
+                </h3>
+                <p className="">
+                  {item.status === "lost"
+                    ? "Please contact the owner with the details below:"
+                    : "Please reach out to claim your item:"}
+                </p>
+                <ul className="mt-2 space-y-2 ">
+                  <li>
+                    📞 <span className="font-semibold">{item.contact}</span>
+                  </li>
+                  <li>📍 {item.location}</li>
+                  <li>📆 {formattedDate}</li>
+                </ul>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 w-full">
+                <a
+                  href={`tel:${item.contact}`}
+                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:bg-blue-700 transition duration-300"
+                >
+                  📞 Call
+                </a>
+                <a
+                  href={`sms:${item.contact}`}
+                  className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:bg-green-700 transition duration-300"
+                >
+                  ✉️ Send SMS
+                </a>
               </div>
             </div>
           </div>
