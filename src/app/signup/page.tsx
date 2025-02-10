@@ -59,9 +59,9 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-8 flex items-center justify-center">
       <div className="container mx-auto p-4 max-w-md">
-        <h1 className="text-4xl font-bold mb-6 text-center">Sign Up</h1>
+        <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">Sign Up</h1>
         <button
           onClick={signInWithGoogle}
           className="flex items-center justify-center w-full mt-4 bg-white text-gray-900 font-semibold py-2 rounded-md transition duration-200 hover:opacity-90"
@@ -71,44 +71,44 @@ const Signup: React.FC = () => {
         </button>
 
         <div className="flex items-center my-4">
-          <hr className="flex-grow border-gray-700" />
-          <span className="mx-3 text-gray-400 font-semibold">OR</span>
-          <hr className="flex-grow border-gray-700" />
+          <hr className="flex-grow border-gray-300" />
+          <span className="mx-3 text-gray-500 font-semibold">OR</span>
+          <hr className="flex-grow border-gray-300" />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg shadow-lg">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-lg">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-800 mb-1">Full Name</label>
             <input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="Enter your Full Name"
               required
             />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-1">Email</label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="Enter your email"
               required
             />
           </div>
           <div className="relative">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-800 mb-1">Password</label>
             <input
               type={showPassword ? "text" : "password"}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="Enter your password"
               required
             />
@@ -121,13 +121,13 @@ const Signup: React.FC = () => {
             </button>
           </div>
           <div>
-            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
+            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-800 mb-1">Confirm Password</label>
             <input
               type="password"
               id="confirm-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="Confirm your password"
               required
             />
@@ -139,7 +139,7 @@ const Signup: React.FC = () => {
           >
             Sign Up
           </button>
-          <p className="mt-4 text-gray-300 text-center">Already have an account?</p>
+          <p className="mt-4 text-gray-600 text-center">Already have an account?</p>
           <button
             type="button"
             onClick={handleLoginNavigate}

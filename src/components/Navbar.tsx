@@ -60,45 +60,45 @@ const Navbar = () => {
           aria-label="Toggle mobile menu"
         >
           <div className={`w-6 h-6 flex flex-col justify-center items-center relative transition-transform duration-300 ${isMobileMenuOpen ? 'open' : ''}`}>
-            <div className={`w-6 h-0.5 bg-white transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`}></div>
-            <div className={`w-6 h-0.5 bg-white mt-1 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></div>
-            <div className={`w-6 h-0.5 bg-white mt-1 transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`}></div>
+            <div className={`w-6 h-0.5 bg-gray-900 transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`}></div>
+            <div className={`w-6 h-0.5 bg-gray-900 mt-1 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></div>
+            <div className={`w-6 h-0.5 bg-gray-800 mt-1 transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`}></div>
           </div>
         </button>
       </nav>
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 bg-gray-900 bg-opacity-75 z-40 transition-transform transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:hidden`}
+        className={`fixed inset-0 bg-gray-300 bg-opacity-75 z-40 transition-transform transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:hidden`}
       >
         <div className="flex flex-col items-center justify-center h-full space-y-8">
-          <Link href="/" className="text-white text-xl font-semibold hover:text-gray-300 transition-colors" onClick={handleLinkClick}>
+          <Link href="/" className="text-gray-900 text-xl font-semibold hover:text-gray-500 transition-colors" onClick={handleLinkClick}>
             Home
           </Link>
-          <Link href="lost" className="text-white text-xl font-semibold hover:text-gray-300 transition-colors" onClick={handleLinkClick}>
+          <Link href="lost" className="text-gray-900 text-xl font-semibold hover:text-gray-500 transition-colors" onClick={handleLinkClick}>
             Lost Item
           </Link>
-          <Link href="found" className="text-white text-xl font-semibold hover:text-gray-300 transition-colors" onClick={handleLinkClick}>
+          <Link href="found" className="text-gray-900 text-xl font-semibold hover:text-gray-500 transition-colors" onClick={handleLinkClick}>
             Found Item
           </Link>
           {!session ? (
             <>
-              <Link href="/signup" className="text-white text-xl font-semibold hover:text-gray-300 transition-colors" onClick={handleLinkClick}>
+              <Link href="/signup" className="text-gray-900 text-xl font-semibold hover:text-gray-500 transition-colors" onClick={handleLinkClick}>
                 Sign Up
               </Link>
-              <Link href="/login" className="text-white text-xl font-semibold hover:text-gray-300 transition-colors" onClick={handleLinkClick}>
+              <Link href="/login" className="text-gray-900 text-xl font-semibold hover:text-gray-500 transition-colors" onClick={handleLinkClick}>
                 Login
               </Link>
             </>
           ) : (
             <>
-              <Link href="/post" className="text-white text-xl font-semibold hover:text-gray-300 transition-colors" onClick={handleLinkClick}>
+              <Link href="/post" className="text-gray-900 text-xl font-semibold hover:text-gray-500 transition-colors" onClick={handleLinkClick}>
                 Post Item
               </Link>
-              <Link href="/profile" className="text-white text-xl font-semibold hover:text-gray-300 transition-colors" onClick={handleLinkClick}>
+              <Link href="/profile" className="text-gray-900 text-xl font-semibold hover:text-gray-500 transition-colors" onClick={handleLinkClick}>
                 Profile
               </Link>
-              <button onClick={handleSignOut} className="text-white text-xl font-semibold hover:text-gray-300 transition-colors">
+              <button onClick={handleSignOut} className="text-gray-900 text-xl font-semibold hover:text-gray-500 transition-colors">
                 Logout
               </button>
             </>
