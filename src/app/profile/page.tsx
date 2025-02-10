@@ -48,16 +48,13 @@ const Profile = () => {
     contact: string;
     date: string;
   }
+
   const handleDelete = async (itemId: string) => {
     try {
       const response = await fetch(`/api/profile/${itemId}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ itemId }),
       });
-  
+
       if (response.ok) {
         setItems((prevItems: Item[]) => prevItems.filter(item => item.id !== itemId));
       } else {
@@ -75,36 +72,44 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-8">Posted Items</h2>
+        <h2 className="text-3xl font-bold text-center mb-4">
+          Hey {session?.user?.name}, this is your posted item!
+        </h2>
+        <p className="text-center text-gray-100 mb-6">
+          If the rightful owner contacts you and retrieves the item, please remove it from here to keep the listings up to date.
+        </p>
+
         {items.length === 0 ? (
-          <p className="text-center">No items to display</p>
+          <p className="text-center text-gray-100">
+            No items listed yet. If you've found or lost something, post it here to help reconnect it with its owner!
+          </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {items.map(item => (
-              <div key={item.id} className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+              <div key={item.id} className="bg-gray-800 rounded-lg shadow-md overflow-hidden p-4">
+                {/* Item Image */}
                 {item.image && (
-                  <img
-                    className="w-full h-32 object-cover"
-                    src={item.image}
-                    alt={item.itemName}
-                  />
+                  <img className="w-full h-32 object-cover rounded" src={item.image} alt={item.itemName} />
                 )}
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">{item.itemName}</h3>
-                  <p className="text-sm">{item.description}</p>
-                  <p className="text-xs text-gray-400 mt-1">Location: {item.location}</p>
-                  <p className="text-xs text-gray-400 mt-1">Contact: {item.contact}</p>
-                  <p className="text-xs text-gray-400">
-                    Date: {new Date(item.date).toISOString().slice(0, 10)}
-                  </p>
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="bg-red-500 text-xs px-2 py-1 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </div>
+
+                {/* Item Details */}
+                <h3 className="text-lg font-semibold mt-2">{item.itemName}</h3>
+                <p className="text-sm text-gray-300">{item.description}</p>
+                <p className="text-xs text-gray-400 mt-1">📍 {item.location}</p>
+                <p className="text-xs text-gray-400 mt-1">📞 {item.contact}</p>
+                <p className="text-xs text-gray-400">🗓 {new Date(item.date).toISOString().slice(0, 10)}</p>
+
+                {/* Contact & Delete Buttons */}
+                <div className="mt-4 flex flex-col gap-2">
+              
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="w-full bg-red-500 text-xs px-3 py-2 rounded-lg hover:bg-red-600 transition"
+                  >
+                    ❌ Delete
+                  </button>
                 </div>
               </div>
             ))}
