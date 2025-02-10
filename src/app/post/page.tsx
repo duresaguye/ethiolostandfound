@@ -1,8 +1,19 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '../../../lib/auth-client';
 import Loader from '../../components/Loader';
+
+// Define the Item interface at the top
+interface Item {
+  itemName: string;
+  description: string;
+  location: string;
+  contact: string;
+  date: string;
+  image: File | null;
+  status: 'found' | 'lost';
+}
 
 const PostItem = () => {
   const [item, setItem] = useState<Item>({
@@ -25,25 +36,13 @@ const PostItem = () => {
     }
   }, [session, isPending, router]);
 
-  interface Item {
-    itemName: string;
-    description: string;
-    location: string;
-    contact: string;
-    date: string;
-    image: File | null;
-    status: 'found' | 'lost';
-  }
-
-  interface Session {
-    // Define the session properties based on your authClient
-  }
-
+  // Handle text, textarea, and select changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): void => {
     const { name, value } = e.target;
-    setItem({ ...item, [name]: value });
+    setItem((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle file input changes
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) {
@@ -54,13 +53,15 @@ const PostItem = () => {
       alert('File size too large (max 5MB)');
       return;
     }
-    setItem({ ...item, image: file });
+    setItem((prev) => ({ ...prev, image: file }));
   };
 
+  // Simple form validation
   const validateForm = () => {
     return item.itemName && item.description && item.location && item.contact && item.date;
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -91,6 +92,7 @@ const PostItem = () => {
       
       if (response.ok) {
         alert('Item submitted successfully');
+        // Reset the form
         setItem({
           itemName: '',
           description: '',
@@ -113,86 +115,98 @@ const PostItem = () => {
   };
 
   if (isPending || !session) {
-    return <div><Loader /></div>;
+    return (
+      <div>
+        <Loader />
+      </div>
+    );
   }
 
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-      <div className="container mx-auto p-4 max-w-xl">
-        <h1 className="text-4xl font-bold mb-6 text-center">Post a Lost or Found Item</h1>
-        <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg shadow-lg">
-          {/* Item Form Fields */}
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-8 flex items-center justify-center">
+      <div className="mx-auto max-w-xl w-full">
+        <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">
+          Post a Lost or Found Item
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-lg">
+          {/* Item Name Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Item Name</label>
+            <label className="block text-sm font-medium text-gray-700">Item Name</label>
             <input
               type="text"
               name="itemName"
               value={item.itemName}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 text-gray-900"
             />
           </div>
+          {/* Description Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Description</label>
+            <label className="block text-sm font-medium text-gray-700">Description</label>
             <textarea
               name="description"
               value={item.description}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 text-gray-900"
             />
           </div>
+          {/* Location Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Location</label>
+            <label className="block text-sm font-medium text-gray-700">Location</label>
             <input
               type="text"
               name="location"
               value={item.location}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 text-gray-900"
             />
           </div>
+          {/* Contact Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Contact Number</label>
+            <label className="block text-sm font-medium text-gray-700">Contact Number</label>
             <input
               type="text"
               name="contact"
               value={item.contact}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 text-gray-900"
             />
           </div>
+          {/* Date Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Date</label>
+            <label className="block text-sm font-medium text-gray-700">Date</label>
             <input
               type="date"
               name="date"
               value={item.date}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 text-gray-900"
             />
           </div>
+          {/* Image Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Image</label>
+            <label className="block text-sm font-medium text-gray-700">Image</label>
             <input
               type="file"
               name="image"
               onChange={handleFileChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
+              className="mt-1 block w-full text-gray-900"
             />
           </div>
+          {/* Status Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Status</label>
+            <label className="block text-sm font-medium text-gray-700">Status</label>
             <select
               name="status"
               value={item.status}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-gray-200"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 text-gray-900"
             >
               <option value="found">Found</option>
               <option value="lost">Lost</option>
             </select>
           </div>
+          {/* Submit Button */}
           <div className="flex justify-center">
             <button
               type="submit"

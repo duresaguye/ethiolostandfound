@@ -3,7 +3,7 @@ import { FaGithub, FaGlobe } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-6">
+    <footer className="bg-gray-300 text-gray-800 py-6">
       <div className="border-b-2 border-gray-300"></div>
       <div className="container mx-auto text-center">
         <p className="mb-2">© 2024 EthioLostFound. All rights reserved.</p>
@@ -11,7 +11,7 @@ const Footer = () => {
           Made with ❤️ in Ethiopia  | BY
           <a
             href="https://www.duresa.me/"
-            className="flex items-center ml-2 text-white"
+            className="flex items-center ml-2 text-blue-500"
             target="_blank"
             rel="noopener noreferrer"
           >

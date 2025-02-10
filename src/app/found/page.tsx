@@ -27,16 +27,9 @@ const FoundItems = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/login");
-    }
-  }, [session, isPending, router]);
-
-  useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
       try {
-        // Fetch all items without filtering by status
         const response = await fetch(`/api/items`);
         if (response.ok) {
           const data = await response.json();
@@ -50,24 +43,29 @@ const FoundItems = () => {
         setLoading(false);
       }
     };
+    fetchItems();
+  }, []);
 
-    if (session) {
-      fetchItems();
-    }
-  }, [session]);  // Only refetch when session changes
+  // Use debounce to limit how frequently the search query updates
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setSearchQuery(value);
+      setCurrentPage(1);
+    }, 500),
+    []
+  );
 
-  const handleSearchChange = useCallback(debounce((event: ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-    setCurrentPage(1);
-  }, 500), []);
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    debouncedSearch(event.target.value);
+  };
 
-  // Filter only items with status 'found' after fetching all items
+  // Filter items to only those with a "found" status and matching the search query
   const filteredItems = items
-    .filter((item) =>
-      item.status === 'found' && (
-        item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    .filter(
+      (item) =>
+        item.status === 'found' &&
+        (item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.description.toLowerCase().includes(searchQuery.toLowerCase()))
     )
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -93,95 +91,99 @@ const FoundItems = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 text-gray-100">
-      <section className="flex justify-center items-center mb-3">
-        <input
-          type="text"
-          placeholder="Search items..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="px-4 py-2 bg-gray-800 rounded-lg focus:outline-none text-white"
-        />
-      </section>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <header className="mb-12 text-center">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4 tracking-tight">
+            Found Items
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Browse through reported found items.
+          </p>
+        </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Search Input */}
+        <div className="mb-12 max-w-2xl mx-auto">
+          <input
+            type="text"
+            placeholder="Search found items..."
+            onChange={handleSearchChange}
+            className="w-full px-6 py-4 border-0 rounded-2xl shadow-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all"
+          />
+        </div>
+
+        {/* Items Grid */}
         {currentItems.length > 0 ? (
-          currentItems.map((item) => (
-            <div
-              key={item.id}
-              className="relative max-w-sm text-white border border-gray-200 rounded-lg shadow transition-transform duration-300 hover:scale-105 hover:border-blue-500 cursor-pointer"
-            >
-              {item.image && (
-                <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
-                  <img
-                    src={item.image}
-                    alt={item.itemName}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              )}
-              <div className="p-5">
-                <h5 className={`mb-2 text-2xl font-bold text-green-500`}>
-                  Found: {item.itemName}
-                </h5>
-                <h5 className="mb-2 text-2xl font-bold text-gray-100">
-                  {item.description}
-                </h5>
-                <Link
-                  href={`/item/${item.id}`}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition duration-300"
-                >
-                  See More
-                  <svg
-                    className="w-3.5 h-3.5 ms-2"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 14 10"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M1 5h12m0 0L9 1m4 4L9 9"
-                    />
-                  </svg>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentItems.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col min-h-[300px]"
+              >
+                <Link href={`/item/${item.id}`} className="flex flex-col flex-1 p-8">
+                  {item.image && (
+                    <div className="mb-6">
+                      <img
+                        src={item.image}
+                        alt={item.itemName}
+                        className="object-cover w-full h-48 rounded-xl"
+                      />
+                    </div>
+                  )}
+                  <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                    Found: {item.itemName}
+                  </h2>
+                  <p className="text-gray-600 text-lg mb-6 line-clamp-4 flex-1">
+                    {item.description}
+                  </p>
+                  <div className="mt-auto pt-4">
+                    <button className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300">
+                      See More
+                    </button>
+                  </div>
                 </Link>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
-          <p className="text-center text-gray-600">No items found.</p>
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-500 text-xl">
+              No found items found.
+            </p>
+          </div>
         )}
-      </div>
 
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          className="px-4 py-2 mx-1 rounded-lg bg-gray-800 text-white"
-          disabled={currentPage === 1}
-        >
-          &lt;
-        </button>
-
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => handlePageChange(index + 1)}
-            className={`px-4 py-2 mx-1 rounded-lg ${currentPage === index + 1 ? 'bg-indigo-600' : 'bg-gray-800'} text-white`}
-          >
-            {index + 1}
-          </button>
-        ))}
-
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          className="px-4 py-2 mx-1 rounded-lg bg-gray-800 text-white"
-          disabled={currentPage === totalPages}
-        >
-          &gt;
-        </button>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              className="px-4 py-2 mx-1 rounded-lg bg-gray-800 text-white"
+              disabled={currentPage === 1}
+            >
+              &lt;
+            </button>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => handlePageChange(index + 1)}
+                className={`px-4 py-2 mx-1 rounded-lg ${
+                  currentPage === index + 1 ? 'bg-indigo-600' : 'bg-gray-800'
+                } text-white`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              className="px-4 py-2 mx-1 rounded-lg bg-gray-800 text-white"
+              disabled={currentPage === totalPages}
+            >
+              &gt;
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
