@@ -46,7 +46,6 @@ const FoundItems = () => {
     fetchItems();
   }, []);
 
-  // Use debounce to limit how frequently the search query updates
   const debouncedSearch = useCallback(
     debounce((value: string) => {
       setSearchQuery(value);
@@ -59,7 +58,6 @@ const FoundItems = () => {
     debouncedSearch(event.target.value);
   };
 
-  // Filter items to only those with a "found" status and matching the search query
   const filteredItems = items
     .filter(
       (item) =>
@@ -87,18 +85,18 @@ const FoundItems = () => {
   }
 
   if (error) {
-    return <p className="text-center text-red-500">{error}</p>;
+    return <p className="text-center text-red-500 dark:text-red-400">{error}</p>;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-8">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-12 text-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4 tracking-tight">
+          <h1 className="text-4xl font-bold mb-4 tracking-tight text-gray-800 dark:text-gray-100">
             Found Items
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             Browse through reported found items.
           </p>
         </header>
@@ -109,7 +107,7 @@ const FoundItems = () => {
             type="text"
             placeholder="Search found items..."
             onChange={handleSearchChange}
-            className="w-full px-6 py-4 border-0 rounded-2xl shadow-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all"
+            className="w-full px-6 py-4 border-0 rounded-2xl shadow-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400"
           />
         </div>
 
@@ -119,11 +117,11 @@ const FoundItems = () => {
             {currentItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col min-h-[300px]"
+                className="rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-shadow duration-300 overflow-hidden flex flex-col min-h-[300px] bg-white dark:bg-gray-800"
               >
-                <Link href={`/item/${item.id}`} className="flex flex-col flex-1 p-8">
+                <Link href={`/item/${item.id}`} className="flex flex-col flex-1 p-6">
                   {item.image && (
-                    <div className="mb-6">
+                    <div className="mb-4">
                       <img
                         src={item.image}
                         alt={item.itemName}
@@ -131,14 +129,14 @@ const FoundItems = () => {
                       />
                     </div>
                   )}
-                  <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-gray-100">
                     Found: {item.itemName}
                   </h2>
-                  <p className="text-gray-600 text-lg mb-6 line-clamp-4 flex-1">
+                  <p className="text-lg mb-4 line-clamp-4 flex-1 text-gray-600 dark:text-gray-300">
                     {item.description}
                   </p>
                   <div className="mt-auto pt-4">
-                    <button className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300">
+                    <button className="w-full px-6 py-3 bg-indigo-600 dark:bg-indigo-700 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-800 transition-colors duration-300">
                       See More
                     </button>
                   </div>
@@ -148,8 +146,8 @@ const FoundItems = () => {
           </div>
         ) : (
           <div className="col-span-full text-center py-12">
-            <p className="text-gray-500 text-xl">
-              No found items found.
+            <p className="text-gray-500 dark:text-gray-400 text-xl">
+              No found items Posted.
             </p>
           </div>
         )}
@@ -159,7 +157,7 @@ const FoundItems = () => {
           <div className="flex justify-center mt-6">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              className="px-4 py-2 mx-1 rounded-lg bg-gray-800 text-white"
+              className="px-4 py-2 mx-1 rounded-lg bg-gray-800 dark:bg-gray-700 text-white hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
               disabled={currentPage === 1}
             >
               &lt;
@@ -168,8 +166,10 @@ const FoundItems = () => {
               <button
                 key={index + 1}
                 onClick={() => handlePageChange(index + 1)}
-                className={`px-4 py-2 mx-1 rounded-lg ${
-                  currentPage === index + 1 ? 'bg-indigo-600' : 'bg-gray-800'
+                className={`px-4 py-2 mx-1 rounded-lg transition-colors ${
+                  currentPage === index + 1 
+                    ? 'bg-indigo-600 dark:bg-indigo-600' 
+                    : 'bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600'
                 } text-white`}
               >
                 {index + 1}
@@ -177,7 +177,7 @@ const FoundItems = () => {
             ))}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              className="px-4 py-2 mx-1 rounded-lg bg-gray-800 text-white"
+              className="px-4 py-2 mx-1 rounded-lg bg-gray-800 dark:bg-gray-700 text-white hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
               disabled={currentPage === totalPages}
             >
               &gt;

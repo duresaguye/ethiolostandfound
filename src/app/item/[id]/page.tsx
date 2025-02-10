@@ -57,7 +57,7 @@ const ItemDetails: React.FC = () => {
 
   if (!item) {
     return (
-      <p className="text-center text-gray-500 p-6 mt-12">Item not found</p>
+      <p className="text-center  p-6 mt-12">Item not found</p>
     );
   }
 
@@ -68,9 +68,9 @@ const ItemDetails: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-8">
+    <div className="min-h-screen bg-gradient-to-b  p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 lg:p-16 transition-all duration-300 hover:shadow-2xl">
+        <div className=" rounded-3xl shadow-xl p-8 sm:p-12 lg:p-16 transition-all duration-300 hover:shadow-2xl">
           <div className="grid gap-8 md:grid-cols-2">
             {/* Image Section */}
             <div className="relative group overflow-hidden rounded-2xl aspect-square">
@@ -81,7 +81,7 @@ const ItemDetails: React.FC = () => {
                   className="w-full h-full object-cover transform transition-all duration-500 group-hover:scale-105"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
+                <div className="w-full h-full flex items-center justify-center ">
                   No Image Available
                 </div>
               )}
@@ -93,7 +93,7 @@ const ItemDetails: React.FC = () => {
               {/* Item Details and Status */}
               <div className="border-b border-gray-200 pb-6">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-semibold text-gray-800">
+                  <h2 className="text-2xl font-semibold ">
                     {item.itemName}
                   </h2>
                   <span
@@ -106,25 +106,25 @@ const ItemDetails: React.FC = () => {
                     {item.status === "lost" ? "Lost" : "Found"}
                   </span>
                 </div>
-                <p className="leading-relaxed mt-4 text-gray-600">
+                <p className="leading-relaxed mt-4 ">
                   {item.description}
                 </p>
               </div>
 
               {/* Item Information */}
-              <div className="p-5 bg-gray-100 rounded-xl">
+              <div className="p-5  rounded-xl">
                 <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div>
-                    <dt className="text-sm font-medium text-gray-500">Date</dt>
-                    <dd className="mt-1 text-lg font-semibold text-gray-800">
+                    <dt className="text-sm font-medium ">Date</dt>
+                    <dd className="mt-1 text-lg font-semibold ">
                       {formattedDate}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium text-gray-500">
+                    <dt className="text-sm font-medium ">
                       Location
                     </dt>
-                    <dd className="mt-1 text-lg font-semibold text-gray-800">
+                    <dd className="mt-1 text-lg font-semibold ">
                       {item.location}
                     </dd>
                   </div>
@@ -132,18 +132,18 @@ const ItemDetails: React.FC = () => {
               </div>
 
               {/* Contact & Additional Info */}
-              <div className="p-5 bg-gray-100 rounded-xl">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">
+              <div className="p-5  rounded-xl">
+                <h3 className="text-lg font-semibold mb-3">
                   {item.status === "lost"
                     ? "If You Found This Item"
                     : "If This Is Your Item"}
                 </h3>
-                <p className="text-gray-600">
+                <p className="">
                   {item.status === "lost"
                     ? "Please contact the owner with the details below:"
                     : "Please reach out to claim your item:"}
                 </p>
-                <ul className="mt-2 space-y-2 text-gray-600">
+                <ul className="mt-2 space-y-2 ">
                   <li>
                     📞 <span className="font-semibold">{item.contact}</span>
                   </li>

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Loader from "../components/Loader"; 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { ThemeProvider } from "../components/theme-provider"
 import { ReactNode } from "react";
 
 
@@ -28,6 +29,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
+        <ThemeProvider
+         attribute="class"
+         defaultTheme="system"
+         enableSystem
+         disableTransitionOnChange
+        >
        
         <Suspense fallback={<Loader />}> {/* Fallback is the Loader */}
       
@@ -35,6 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
           <Footer />
         </Suspense>
+        </ThemeProvider>
       </body>
     </html>
   );
