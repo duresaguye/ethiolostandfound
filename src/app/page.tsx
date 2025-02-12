@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { authClient } from "@/lib/auth-client";
 import Loader from "../components/Loader";
@@ -10,7 +11,7 @@ interface Item {
   id: string;
   itemName: string;
   description: string;
-  status: 'lost' | 'found' | 'all';
+  status: 'lost' | 'found';
   image?: string;
   location: string;
   date: string;
@@ -24,89 +25,114 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [locationQuery, setLocationQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const [lostCount, setLostCount] = useState<number>(0);
   const [foundCount, setFoundCount] = useState<number>(0);
   const itemsPerPage = 15;
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
+  // Fetch global counts
   useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const response = await fetch('/api/items/counts');
+        if (response.ok) {
+          const { lost, found } = await response.json();
+          setLostCount(lost);
+          setFoundCount(found);
+        }
+      } catch (error) {
+        console.error('Error fetching counts:', error);
+      }
+    };
+    fetchCounts();
+  }, []);
+
+  // Debounced search handlers
+  const debouncedSearch = useCallback(
+    debounce((query: string) => setSearchQuery(query), 500),
+    []
+  );
+
+  const debouncedLocation = useCallback(
+    debounce((location: string) => setLocationQuery(location), 500),
+    []
+  );
+
+  // Main data fetching
+  useEffect(() => {
+    const abortController = new AbortController();
+
     const fetchItems = async () => {
       setLoading(true);
       try {
-        const response = await fetch('/api/items?limit=20&sort=date_desc');
-        if (response.ok) {
-          const data = await response.json();
-          setItems(data.items);
-  
-          // Calculate lost and found counts
-            const lostItems: Item[] = data.items.filter((item: Item) => item.status === 'lost');
-            const foundItems: Item[] = data.items.filter((item: Item) => item.status === 'found');
-          
-          setLostCount(lostItems.length);
-          setFoundCount(foundItems.length);
-        } else {
-          setError('Failed to fetch items');
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          limit: itemsPerPage.toString(),
+          status: filter,
+          search: searchQuery,
+          location: locationQuery,
+          sort: 'date_desc'
+        });
+
+        const response = await fetch(`/api/items?${params}`, {
+          signal: abortController.signal
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch items');
+        
+        const data = await response.json();
+        setItems(data.items);
+        setTotalPages(data.totalPages);
+        setError('');
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          setError('Failed to fetch items. Please try again later.');
         }
-      } catch (error) {
-        setError('Failed to fetch items');
       } finally {
         setLoading(false);
       }
     };
+
     fetchItems();
-  }, []);
+
+    return () => abortController.abort();
+  }, [filter, searchQuery, locationQuery, currentPage, itemsPerPage]);
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    debouncedSearch(e.target.value);
+    setCurrentPage(1);
+  };
+
   
 
-  const handleSearchChange = useCallback(
-    debounce((event: ChangeEvent<HTMLInputElement>) => {
-      setSearchQuery(event.target.value);
-      setCurrentPage(1);
-    }, 500),
-    []
-  );
-
-  const filteredItems = items
-    .filter((item) =>
-      (filter === 'all' || item.status === filter) &&
-      (item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      item.location.toLowerCase().includes(locationQuery.toLowerCase())
-    )
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-
-  const handlePageChange = (pageNumber: number): void => {
+  const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (loading || isPending) {
-    return (
-      <div>
-        <Loader />
-      </div>
-    );
+    return <Loader />;
   }
 
   if (error) {
-    return <p className="text-center text-red-500">{error}</p>;
+    return <p className="text-center text-red-500 py-8">{error}</p>;
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         <header className="mb-12 text-center">
-          <h1 className="text-5xl font-extrabold m-4 ">
+          <h1 className="text-5xl font-extrabold m-4">
             <span className="text-green-600 dark:text-green-400">Welcome to </span>
             <span className="text-yellow-600 dark:text-yellow-400">Ethiolost</span>
-            <img
+            <Image 
               src="/Emblem_of_Ethiopia.svg.png"
               alt="Emblem of Ethiopia"
-              className="w-10 h-10 inline-block align-middle ml-2"
+              width={40}
+              height={40}
+              className="inline-block align-middle ml-2"
             />
             <span className="text-red-600 dark:text-red-400"> Found!</span>
           </h1>
@@ -118,7 +144,6 @@ const Home = () => {
             </p>
           </div>
 
-          {/* Stats Section */}
           <div className="shadow-lg rounded-2xl p-6 mb-6 transition-all hover:shadow-xl dark:bg-gray-800 dark:hover:shadow-gray-700">
             <div className="flex justify-center gap-8 mb-4">
               <div className="text-center px-6 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-600">
@@ -132,7 +157,7 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 flex flex-col items-center gap-4">
               <Link
                 href="/post"
                 className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-600 dark:to-purple-600 text-white rounded-lg
@@ -141,6 +166,7 @@ const Home = () => {
                 📢 Report Lost/Found Item
                 <span className="ml-2 text-lg">→</span>
               </Link>
+
             </div>
 
             <p className="mt-4 text-md text-gray-600 dark:text-gray-400">
@@ -149,7 +175,7 @@ const Home = () => {
           </div>
         </header>
 
-        <div className="mb-12 max-w-2xl mx-auto">
+        <div className="mb-12 max-w-2xl mx-auto space-y-4">
           <input
             type="text"
             placeholder="Search items..."
@@ -157,48 +183,79 @@ const Home = () => {
             className="w-full px-6 py-4 border-0 rounded-2xl shadow-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all
                      bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400"
           />
+         
         </div>
 
-        {/* Recently Posted Section */}
         <div className="flex items-center mb-8">
           <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mx-4">Recently Posted Lost and Found Items</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mx-4">
+            Recently Posted Lost and Found Items
+          </h2>
           <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {currentItems.length > 0 ? (
-            currentItems.map((item) => (
+          {items.length > 0 ? (
+            items.map((item) => (
               <div
                 key={item.id}
                 className="rounded-xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700 transition-shadow duration-300 overflow-hidden flex flex-col min-h-[300px] cursor-pointer bg-white dark:bg-gray-800"
               >
                 <Link href={`/item/${item.id}`} className="flex flex-col flex-1 p-6">
                   {item.image && (
-                    <div className="mb-4">
-                      <img
+                    <div className="mb-4 relative h-48">
+                      <Image
                         src={item.image}
                         alt={item.itemName}
-                        className="object-cover w-full h-48 rounded-xl"
+                        fill
+                        className="object-cover rounded-xl"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </div>
                   )}
-                  <h5 className={`mb-2 text-2xl font-bold ${item.status === 'lost' ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'}`}>
+                  <h5 className={`mb-2 text-2xl font-bold ${
+                    item.status === 'lost' 
+                      ? 'text-red-500 dark:text-red-400' 
+                      : 'text-green-500 dark:text-green-400'
+                  }`}>
                     {item.status === 'lost' ? `Lost: ${item.itemName}` : `Found: ${item.itemName}`}
                   </h5>
                   <p className="text-lg mb-4 flex-1 text-gray-600 dark:text-gray-300">{item.description}</p>
-                  <button className="w-full px-6 py-3 bg-indigo-600 dark:bg-indigo-700 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-800 transition-colors duration-300">
-                    See More
-                  </button>
+                  <div className="mt-auto space-y-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      📍 {item.location} | 📅 {new Date(item.date).toLocaleDateString()}
+                    </p>
+                    <button className="w-full px-6 py-3 bg-indigo-600 dark:bg-indigo-700 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-800 transition-colors duration-300">
+                      See Details
+                    </button>
+                  </div>
                 </Link>
               </div>
             ))
           ) : (
             <div className="col-span-full text-center py-12">
-              <p className="text-xl text-gray-600 dark:text-gray-300">No items found.</p>
+              <p className="text-xl text-gray-600 dark:text-gray-300">No items found matching your criteria.</p>
             </div>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8 mb-12">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`mx-1 px-4 py-2 rounded-lg ${
+                  currentPage === page 
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
