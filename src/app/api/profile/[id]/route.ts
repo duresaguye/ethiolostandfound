@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { headers } from "next/headers"; 
 import { auth } from "../../../../../lib/auth";
@@ -46,7 +46,12 @@ export async function GET(req: Request) {
 //
 // ─── DELETE: Remove an Uploaded Item ──────────────────────────────────────────
 //
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     console.log("DELETE request received");
 
@@ -59,8 +64,13 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const itemId = params.id;  // Get ID from URL params
+    const itemId = params.id; // Get ID from URL params
     console.log("Deleting item ID:", itemId);
+
+    if (!itemId) {
+      console.log("Invalid item ID");
+      return NextResponse.json({ error: "Invalid item ID" }, { status: 400 });
+    }
 
     const item = await prisma.lostItem.findUnique({ where: { id: itemId } });
 
@@ -73,7 +83,6 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     console.log("Item deleted successfully");
     return NextResponse.json({ message: "Item deleted successfully" }, { status: 200 });
-
   } catch (error) {
     console.error("Failed to delete item:", error);
     return NextResponse.json({ error: "Failed to delete item" }, { status: 500 });
