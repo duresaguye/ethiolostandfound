@@ -13,9 +13,7 @@ export default function ThemeToggle() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return (
-    <div className="w-10 h-10" /> 
-  );// Avoid flickering issue
+  if (!mounted) return null; // Avoid flickering issue
 
   return (
     <button
