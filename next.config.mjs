@@ -3,6 +3,9 @@ const nextConfig = {
     experimental: {
        
       },
+      images: {
+        domains: ['res.cloudinary.com'], 
+      },
 };
 
 

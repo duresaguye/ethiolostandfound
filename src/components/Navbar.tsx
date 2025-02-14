@@ -32,6 +32,11 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleLogoutClick = async () => {
+    await handleSignOut();
+    handleLinkClick();
+  };
+
   if (isPending) {
     return <Loader />; 
   }
@@ -84,7 +89,7 @@ const Navbar = () => {
             {!session ? (
               <Link href="/signup" className="hover:underline py-2">Sign Up</Link>
             ) : (
-              <button onClick={handleSignOut} className="hover:underline py-2">Logout</button>
+              <button onClick={handleLogoutClick} className="hover:underline py-2">Logout</button>
             )}
             <ThemeToggle />
           </div>
@@ -122,7 +127,7 @@ const Navbar = () => {
               <Link href="/profile" className="text-gray-900 dark:text-white text-xl font-semibold hover:text-gray-500" onClick={handleLinkClick}>
                 Profile
               </Link>
-              <button onClick={handleSignOut} className="text-gray-900 dark:text-white text-xl font-semibold hover:text-gray-500">
+              <button onClick={handleLogoutClick} className="text-gray-900 dark:text-white text-xl font-semibold hover:text-gray-500">
                 Logout
               </button>
             </>
