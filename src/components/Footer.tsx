@@ -1,5 +1,5 @@
 import React from "react";
-
+import { FaGithub, FaGlobe } from "react-icons/fa";
 import Link from "next/link";
 
 const Footer = () => {
@@ -35,14 +35,14 @@ const Footer = () => {
   © {new Date().getFullYear()} EthioLostFound. All rights reserved.
 </p>
           <p className="flex justify-center items-center text-gray-600 dark:text-gray-400">
-            Made with  BY
+            Made with ❤️ in Ethiopia | BY
             <a
               href="https://www.duresa.me/"
               className="flex items-center ml-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Duresa Guye
+              <FaGlobe className="ml-1 mr-1" /> Duresa Guye
             </a>
           </p>
         </div>
