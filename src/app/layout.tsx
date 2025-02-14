@@ -22,22 +22,44 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Ethiolost and Found ",
   description: "Discover a world of lost and found treasures! Whether you are searching for a lost item or want to help reunite others with their belongings, you are in the right place.",
+ keywords: [
+    "Lost iteam",
+    "Ethiopia lost and found",
+    "Ethhiopia",
+    "Found iteam",
+    
+  ],
+  openGraph: {
+    title: "Ethiolost and Found ",
+  description: "Discover a world of lost and found treasures! Whether you are searching for a lost item or want to help reunite others with their belongings, you are in the right place.",
+    images: [
+      {
+        url: "https://ethio-lost-and-found.vercel.app/metaimage.png",
+        width: 800,
+        height: 600,
+        alt: "Ethiolost and Found",
+      }
+    ],
+  },
+  alternates: {
+    canonical: "https://ethio-lost-and-found.vercel.app",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         <ThemeProvider
-         attribute="class"
-         defaultTheme="system"
-         enableSystem
-         disableTransitionOnChange
+           attribute="class"
+           defaultTheme="light" 
+           enableSystem
+           disableTransitionOnChange
         >
        
-        <Suspense fallback={<Loader />}> {/* Fallback is the Loader */}
+        <Suspense fallback={<Loader />}> 
       
           <Navbar />
           {children}
