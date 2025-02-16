@@ -6,79 +6,31 @@ import { v2 as cloudinary } from 'cloudinary';
 
 const prisma = new PrismaClient();
 
+// Configure Cloudinary
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET 
 });
 
-// GET endpoint with filtering, sorting, and pagination
+
+
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    
-    // Pagination
-    const page = Number(searchParams.get('page') || 1);
-    const limit = Number(searchParams.get('limit') || 15);
-    const skip = (page - 1) * limit;
+    const items = await prisma.lostItem.findMany({
+      select: {
+        id: true,
+        itemName: true,
+        description: true,
+        location: true,
+        contact: true,
+        image: true,
+        date: true,
+        status: true,
+      },
+    });
 
-    // Filtering
-    const status = searchParams.get('status') || 'all';
-    const search = searchParams.get('search') || '';
-    const location = searchParams.get('location') || '';
-    const sort = searchParams.get('sort') || 'date_desc';
-
-    // Build where clause
-    const where: any = {};
-    
-    if (status !== 'all') {
-      where.status = status;
-    }
-    
-    if (search) {
-      where.OR = [
-        { itemName: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } }
-      ];
-    }
-    
-    if (location) {
-      where.location = { contains: location, mode: 'insensitive' };
-    }
-
-    // Build orderBy
-    const orderBy: any = {};
-    const [sortField, sortOrder] = sort.split('_');
-    orderBy[sortField] = sortOrder === 'desc' ? 'desc' : 'asc';
-
-    // Get paginated results
-    const [items, totalItems] = await Promise.all([
-      prisma.lostItem.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
-        select: {
-          id: true,
-          itemName: true,
-          description: true,
-          location: true,
-          contact: true,
-          image: true,
-          date: true,
-          status: true,
-        },
-      }),
-      prisma.lostItem.count({ where })
-    ]);
-
-    return NextResponse.json({
-      items,
-      totalItems,
-      totalPages: Math.ceil(totalItems / limit),
-      currentPage: page
-    }, { status: 200 });
-
+    return NextResponse.json({ items }, { status: 200 });
   } catch (error) {
     console.error("Failed to fetch items:", error);
     return NextResponse.json(
@@ -88,9 +40,6 @@ export async function GET(req: Request) {
   }
 }
 
-
-
-// POST endpoint
 export async function POST(req: Request) {
   try {
     const session = await auth.api.getSession({
@@ -103,18 +52,7 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
 
-    // Validate required fields
-    const requiredFields = ['itemName', 'status'];
-    for (const field of requiredFields) {
-      if (!formData.get(field)) {
-        return NextResponse.json(
-          { error: `Missing required field: ${field}` }, 
-          { status: 400 }
-        );
-      }
-    }
-
-    // Handle image upload
+    // Handle file upload to Cloudinary
     let imageUrl = '';
     const imageFile = formData.get('image') as File | null;
     
@@ -125,37 +63,30 @@ export async function POST(req: Request) {
 
         const uploadResult = await cloudinary.uploader.upload(
           `data:${imageFile.type};base64,${base64String}`, 
-          { folder: 'lost-and-found', resource_type: 'auto' }
+          {
+            folder: 'lost-and-found',
+            resource_type: 'auto'
+          }
         );
         
         imageUrl = uploadResult.secure_url;
       } catch (uploadError) {
-        console.error("Image upload failed:", uploadError);
+        console.error("Failed to upload image:", uploadError);
         return NextResponse.json(
-          { error: "Image upload failed" }, 
+          { error: "Failed to upload image" }, 
           { status: 500 }
         );
       }
     }
 
-    // Validate date format
-    const dateString = formData.get('date') as string;
-    const date = dateString ? new Date(dateString) : new Date();
-    if (isNaN(date.getTime())) {
-      return NextResponse.json(
-        { error: "Invalid date format" }, 
-        { status: 400 }
-      );
-    }
-
-    // Create item
+    // Create new item in database
     const newItem = await prisma.lostItem.create({
       data: {
         itemName: formData.get('itemName') as string,
         description: formData.get('description') as string,
         location: formData.get('location') as string,
         contact: formData.get('contact') as string,
-        date,
+        date: new Date(formData.get('date') as string),
         status: formData.get('status') as string,
         image: imageUrl,
         userId: session.user.id,
@@ -163,14 +94,14 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(
-      { message: "Item added successfully", item: newItem }, 
+      { message: "Item added successfully", newItem }, 
       { status: 201 }
     );
 
   } catch (error) {
-    console.error("Item creation failed:", error);
+    console.error("Failed to create item:", error);
     return NextResponse.json(
-      { error: "Item creation failed" }, 
+      { error: "Failed to create item" }, 
       { status: 500 }
     );
   }

@@ -53,10 +53,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         <ThemeProvider
-           attribute="class"
-           defaultTheme="light" 
-           enableSystem
-           disableTransitionOnChange
+         attribute="class"
+         defaultTheme="system"
+         enableSystem
+         disableTransitionOnChange
         >
        
         <Suspense fallback={<Loader />}> 

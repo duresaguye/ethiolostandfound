@@ -5,11 +5,48 @@ import { auth } from "../../../../../lib/auth";
 
 const prisma = new PrismaClient();
 
+//
+// ─── GET: Retrieve Only the User’s Uploaded Items ─────────────────────────────
+//
+export async function GET(req: Request) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    // Retrieve just the items that the logged-in user uploaded.
+    const items = await prisma.lostItem.findMany({
+      where: { userId: session.user.id },
+    
+      select: {
+        id: true,
+        itemName: true,
+        description: true,
+        location: true,
+        contact: true,
+        image: true,
+        date: true,
+        status: true,
+      },
+    });
+
+    return NextResponse.json({ items });
+  } catch (error) {
+    console.error("Failed to retrieve items:", error);
+    return NextResponse.json(
+      { error: "Failed to retrieve items" },
+      { status: 500 }
+    );
+  }
+}
 
 //
 // ─── DELETE: Remove an Uploaded Item ──────────────────────────────────────────
 //
+
 export async function DELETE(req: NextRequest) {
   try {
     console.log("DELETE request received");

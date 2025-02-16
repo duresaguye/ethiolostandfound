@@ -42,7 +42,7 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Duresa Guye
+               Duresa Guye
             </a>
           </p>
         </div>
