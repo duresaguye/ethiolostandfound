@@ -18,7 +18,7 @@ A platform to help people in Ethiopia report and find lost or found items effici
 - **Database:** PostgreSQL (via **Supabase**)
 - **Authentication:** Better-Auth
 - **Image Hosting:** Cloudinary
-- **Other:** TypeScript, PostCSS
+- **Styling:** TypeScript
 
 ## 📦 Installation & Setup
 
