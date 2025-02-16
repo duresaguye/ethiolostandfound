@@ -47,10 +47,8 @@ export async function GET(req: Request) {
 // ─── DELETE: Remove an Uploaded Item ──────────────────────────────────────────
 //
 
-export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     console.log("DELETE request received");
 
@@ -63,7 +61,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: itemId } =  await context.params; // Properly extract ID from params
+    const itemId = params.id; // Properly extract ID from params
     console.log("Deleting item ID:", itemId);
 
     if (!itemId) {
