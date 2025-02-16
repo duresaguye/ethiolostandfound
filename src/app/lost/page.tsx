@@ -89,7 +89,7 @@ const LostItems = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors duration-300">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-12 text-center">

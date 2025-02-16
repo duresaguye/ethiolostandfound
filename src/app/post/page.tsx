@@ -95,7 +95,7 @@ const PostItem = () => {
   }
 
   return (
-    <div className="min-h-screen p-8 flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen p-8 flex items-center justify-center ">
       <div className="mx-auto max-w-xl w-full bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg ring-1 ring-gray-200 dark:ring-gray-700">
         <h1 className="text-4xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">
           Post a Lost or Found Item
