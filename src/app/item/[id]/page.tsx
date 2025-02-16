@@ -64,7 +64,7 @@ const ItemDetails: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen   p-8">
+    <div  className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors duration-300">
       <div className="max-w-4xl mx-auto">
         <div className=" rounded-3xl shadow-xl p-8 sm:p-12 lg:p-16 transition-all duration-300 hover:shadow-2xl">
           <div className="grid gap-8 md:grid-cols-2">

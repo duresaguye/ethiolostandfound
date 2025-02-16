@@ -58,9 +58,9 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8 flex items-center justify-center transition-colors duration-300">
+    <div className="min-h-screen  p-8 flex items-center justify-center ">
       <div className="container mx-auto p-4 max-w-md">
-        <h1 className="text-4xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Sign Up</h1>
+        <h1 className="text-4xl font-bold mb-6 text-center ">Sign Up</h1>
         <button
           onClick={signInWithGoogle}
           className="flex items-center justify-center w-full mt-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold py-2 rounded-md shadow-lg transition duration-200 hover:opacity-90"
@@ -71,7 +71,8 @@ const Signup: React.FC = () => {
 
         <div className="flex items-center my-4">
           <hr className="flex-grow border-gray-300 dark:border-gray-600" />
-          <span className="mx-3 text-gray-500 dark:text-gray-400 font-semibold">OR</span>
+          <span className="mx-3
+           text-gray-500 dark:text-gray-400 font-semibold">OR</span>
           <hr className="flex-grow border-gray-300 dark:border-gray-600" />
         </div>
 

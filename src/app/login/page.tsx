@@ -71,7 +71,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors duration-300 flex items-center justify-center">
+    <div className="min-h-screen  flex items-center justify-center">
       <div className="container mx-auto p-4 max-w-md">
         <h1 className="text-4xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Login</h1>
 

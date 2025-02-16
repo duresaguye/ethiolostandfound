@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="py-6 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
+    <footer className="py-6 ">
       <div className="border-b-2 border-gray-300 dark:border-gray-600 mb-6"></div>
       <div className="container mx-auto px-4">
         {/* Quick Links */}
