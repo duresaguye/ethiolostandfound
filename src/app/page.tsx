@@ -111,12 +111,14 @@ const Home = () => {
             <span className="text-red-600 dark:text-red-400"> Found!</span>
           </h1>
 
-          <div className="mb-8 max-w-2xl mx-auto">
-            <p className="text-xl font-medium mb-8 text-gray-600 dark:text-gray-300">
-              🔍 Discover a world of lost and found treasures! Whether you're searching for a lost item
-              or want to help reunite others with their belongings, you're in the right place.
-            </p>
-          </div>
+          <p className="text-xl font-medium mb-8 text-gray-600 dark:text-gray-300">
+  🔍 Discover a world of lost and found treasures! Whether you're searching for a lost item or want to help reunite others with their belongings, you're in the right place.
+</p>
+<p className="text-lg text-gray-700 dark:text-gray-300">
+  Ready to share your story? <Link href="/login" className="text-indigo-600 dark:text-indigo-400 font-semibold">Log in or sign up</Link> to post your lost or found item!
+</p>
+
+
 
           {/* Stats Section */}
           <div className="shadow-lg rounded-2xl p-6 mb-6 transition-all hover:shadow-xl dark:bg-gray-800 dark:hover:shadow-gray-700">

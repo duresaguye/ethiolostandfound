@@ -17,6 +17,7 @@ interface Item {
 const Profile = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [deletingItemId, setDeletingItemId] = useState<string | null>(null); // To track the deleting item
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
@@ -50,6 +51,7 @@ const Profile = () => {
   }, [fetchItems]);
 
   const handleDelete = async (itemId: string) => {
+    setDeletingItemId(itemId); // Set the item as being deleted
     try {
       const response = await fetch(`/api/profile/${itemId}`, {
         method: 'DELETE',
@@ -61,6 +63,8 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error deleting item:', error);
+    } finally {
+      setDeletingItemId(null); // Reset the deleting state after completion
     }
   };
 
@@ -128,7 +132,7 @@ const Profile = () => {
                     onClick={() => handleDelete(item.id)}
                     className="mt-4 w-full px-6 py-3 bg-red-500 dark:bg-red-600 text-white rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition-colors duration-300"
                   >
-                    ❌ Delete
+                    {deletingItemId === item.id ? "Deleting..." : "❌ Delete"}
                   </button>
                 </div>
               </div>
