@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Ethiolost and Found ",
-  description: "Discover a world of lost and found treasures! Whether you are searching for a lost item or want to help reunite others with their belongings, you are in the right place.",
+  description: "Discover a world of lost and found! Whether you are searching for a lost item or want to help reunite others with their belongings, you are in the right place.",
   keywords: [
     "Lost iteam",
     "Ethiopia lost and found",
